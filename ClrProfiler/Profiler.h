@@ -6,6 +6,7 @@
 
 
 #include "ClrProfiler_i.h"
+#include "CorProfilerCallbackImpl.h"
 
 
 
@@ -19,35 +20,52 @@ using namespace ATL;
 // CProfiler
 
 class ATL_NO_VTABLE CProfiler :
-	public CComObjectRootEx<CComSingleThreadModel>,
-	public CComCoClass<CProfiler, &CLSID_Profiler>,
-	public IDispatchImpl<IProfiler, &IID_IProfiler, &LIBID_ClrProfilerLib, /*wMajor =*/ 1, /*wMinor =*/ 0>
+    public CComObjectRootEx<CComSingleThreadModel>,
+    public CComCoClass<CProfiler, &CLSID_Profiler>,
+    public CCorProfilerCallbackImpl
 {
+private:
+    CComQIPtr<ICorProfilerInfo> pICorProfilerInfo_;
+    CComQIPtr<ICorProfilerInfo2> pICorProfilerInfo2_;
+    CComQIPtr<ICorProfilerInfo3> pICorProfilerInfo3_;
+    CComQIPtr<ICorProfilerInfo4> pICorProfilerInfo4_;
+
+    void SetEventMasks();
+
+
 public:
-	CProfiler()
-	{
-	}
+    CProfiler()
+    {
+    }
 
-DECLARE_REGISTRY_RESOURCEID(IDR_PROFILER)
-
-
-BEGIN_COM_MAP(CProfiler)
-	COM_INTERFACE_ENTRY(IProfiler)
-	COM_INTERFACE_ENTRY(IDispatch)
-END_COM_MAP()
+    DECLARE_REGISTRY_RESOURCEID(IDR_PROFILER)
 
 
+    BEGIN_COM_MAP(CProfiler)
+        COM_INTERFACE_ENTRY(ICorProfilerCallback)
+        COM_INTERFACE_ENTRY(ICorProfilerCallback2)
+        COM_INTERFACE_ENTRY(ICorProfilerCallback3)
+        COM_INTERFACE_ENTRY(ICorProfilerCallback4)
+        COM_INTERFACE_ENTRY(ICorProfilerCallback5)
+    END_COM_MAP()
 
-	DECLARE_PROTECT_FINAL_CONSTRUCT()
+    DECLARE_PROTECT_FINAL_CONSTRUCT()
 
-	HRESULT FinalConstruct()
-	{
-		return S_OK;
-	}
+    HRESULT FinalConstruct()
+    {
+        return S_OK;
+    }
 
-	void FinalRelease()
-	{
-	}
+    void FinalRelease()
+    {
+    }
+
+    STDMETHOD(Initialize)(IUnknown *pICorProfilerInfoUnk);
+    STDMETHOD(Shutdown)(void);
+
+    void Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+    void Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+    void Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
 public:
 

@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 8.00.0603 */
-/* at Sat Dec 20 13:23:01 2014
+/* at Sat Dec 20 21:10:31 2014
  */
 /* Compiler settings for ClrProfiler.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 
@@ -127,20 +127,12 @@ static const ClrProfiler_MIDL_TYPE_FORMAT_STRING ClrProfiler__MIDL_TypeFormatStr
    GUID={0x00000000,0x0000,0x0000,{0xC0,0x00,0x00,0x00,0x00,0x00,0x00,0x46}} */
 
 
-/* Object interface: IDispatch, ver. 0.0,
-   GUID={0x00020400,0x0000,0x0000,{0xC0,0x00,0x00,0x00,0x00,0x00,0x00,0x46}} */
-
-
 /* Object interface: IProfiler, ver. 0.0,
    GUID={0xF399D428,0x9512,0x45D6,{0xBC,0xE6,0x92,0x0F,0x83,0x87,0x19,0xF6}} */
 
 #pragma code_seg(".orpc")
 static const unsigned short IProfiler_FormatStringOffsetTable[] =
     {
-    (unsigned short) -1,
-    (unsigned short) -1,
-    (unsigned short) -1,
-    (unsigned short) -1,
     0
     };
 
@@ -165,35 +157,22 @@ static const MIDL_SERVER_INFO IProfiler_ServerInfo =
     0,
     0,
     0};
-CINTERFACE_PROXY_VTABLE(7) _IProfilerProxyVtbl = 
+CINTERFACE_PROXY_VTABLE(3) _IProfilerProxyVtbl = 
 {
     0,
     &IID_IProfiler,
     IUnknown_QueryInterface_Proxy,
     IUnknown_AddRef_Proxy,
-    IUnknown_Release_Proxy ,
-    0 /* IDispatch::GetTypeInfoCount */ ,
-    0 /* IDispatch::GetTypeInfo */ ,
-    0 /* IDispatch::GetIDsOfNames */ ,
-    0 /* IDispatch_Invoke_Proxy */
+    IUnknown_Release_Proxy
 };
 
-
-static const PRPC_STUB_FUNCTION IProfiler_table[] =
-{
-    STUB_FORWARDING_FUNCTION,
-    STUB_FORWARDING_FUNCTION,
-    STUB_FORWARDING_FUNCTION,
-    STUB_FORWARDING_FUNCTION
-};
-
-CInterfaceStubVtbl _IProfilerStubVtbl =
+const CInterfaceStubVtbl _IProfilerStubVtbl =
 {
     &IID_IProfiler,
     &IProfiler_ServerInfo,
-    7,
-    &IProfiler_table[-3],
-    CStdStubBuffer_DELEGATING_METHODS
+    3,
+    0, /* pure interpreted */
+    CStdStubBuffer_METHODS
 };
 
 static const MIDL_STUB_DESC Object_StubDesc = 
@@ -238,12 +217,6 @@ PCInterfaceName const _ClrProfiler_InterfaceNamesList[] =
     0
 };
 
-const IID *  const _ClrProfiler_BaseIIDList[] = 
-{
-    &IID_IDispatch,
-    0
-};
-
 
 #define _ClrProfiler_CHECK_IID(n)	IID_GENERIC_CHECK_IID( _ClrProfiler, pIID, n)
 
@@ -264,7 +237,7 @@ const ExtendedProxyFileInfo ClrProfiler_ProxyFileInfo =
     (PCInterfaceProxyVtblList *) & _ClrProfiler_ProxyVtblList,
     (PCInterfaceStubVtblList *) & _ClrProfiler_StubVtblList,
     (const PCInterfaceName * ) & _ClrProfiler_InterfaceNamesList,
-    (const IID ** ) & _ClrProfiler_BaseIIDList,
+    0, /* no delegation */
     & _ClrProfiler_IID_Lookup, 
     1,
     2,

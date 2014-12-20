@@ -8,27 +8,27 @@ import "oaidl.idl";
 import "ocidl.idl";
 
 [
-	object,
-	uuid(F399D428-9512-45D6-BCE6-920F838719F6),
-	dual,
-	nonextensible,
-	pointer_default(unique)
+    object,
+    uuid(F399D428-9512-45D6-BCE6-920F838719F6),
+    dual,
+    nonextensible,
+    pointer_default(unique)
 ]
-interface IProfiler : IDispatch{
+interface IProfiler : IUnknown{
 };
 [
-	uuid(0EFC4259-BECC-4CB6-81C3-8233DFA2A7CB),
-	version(1.0),
+    uuid(0EFC4259-BECC-4CB6-81C3-8233DFA2A7CB),
+    version(1.0),
 ]
 library ClrProfilerLib
 {
-	importlib("stdole2.tlb");
-	[
-		uuid(43D6CE07-2262-485D-BEF3-33C0F9340C6A)		
-	]
-	coclass Profiler
-	{
-		[default] interface IProfiler;
-	};
+    importlib("stdole2.tlb");
+    [
+        uuid(43D6CE07-2262-485D-BEF3-33C0F9340C6A)
+    ]
+    coclass Profiler
+    {
+        [default] interface IUnknown;
+    };
 };
 
