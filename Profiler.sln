@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClrProfiler", "ClrProfiler\ClrProfiler.vcxproj", "{23FA06AF-BC54-44FE-89DB-7BF042285B7F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClrProfilerPS", "ClrProfiler\ClrProfilerPS.vcxproj", "{3CB67425-5AB0-4892-8033-2EEF515C0922}"
+	ProjectSection(ProjectDependencies) = postProject
+		{23FA06AF-BC54-44FE-89DB-7BF042285B7F} = {23FA06AF-BC54-44FE-89DB-7BF042285B7F}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{23FA06AF-BC54-44FE-89DB-7BF042285B7F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{23FA06AF-BC54-44FE-89DB-7BF042285B7F}.Debug|Win32.Build.0 = Debug|Win32
+		{23FA06AF-BC54-44FE-89DB-7BF042285B7F}.Release|Win32.ActiveCfg = Release|Win32
+		{23FA06AF-BC54-44FE-89DB-7BF042285B7F}.Release|Win32.Build.0 = Release|Win32
+		{3CB67425-5AB0-4892-8033-2EEF515C0922}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3CB67425-5AB0-4892-8033-2EEF515C0922}.Release|Win32.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
