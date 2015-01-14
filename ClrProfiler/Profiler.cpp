@@ -5,81 +5,92 @@
 
 #include <iostream>
 
-CProfiler* _pICorProfilerCallback;
+CProfiler* pICorProfilerCallback;
 
-void __stdcall EnterGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+extern "C" void __stdcall EnterGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    if (_pICorProfilerCallback != NULL)
-        _pICorProfilerCallback->Enter3WithInfo(functionIDOrClientID, eltInfo);
-}
-
-void __declspec(naked) EnterNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    __asm
-    {
-        push ebp
-            mov ebp, esp
-            pushad
-            mov edx, [ebp + 0x0C]
-            push edx
-            mov eax, [ebp + 0x08]
-            push eax
-            call EnterGlobalWithInfo;
-        popad
-            pop ebp
-            ret SIZE functionIDOrClientID + SIZE eltInfo
-    }
-}
-void __stdcall LeaveGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    if (_pICorProfilerCallback != NULL)
-        _pICorProfilerCallback->Leave3WithInfo(functionIDOrClientID, eltInfo);
+    if (pICorProfilerCallback != NULL)
+        pICorProfilerCallback->Enter3WithInfo(functionIDOrClientID, eltInfo);
 }
 
-void __declspec(naked) LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+extern "C" void __stdcall EnterNaked3WithInfo(FunctionIDOrClientID, COR_PRF_ELT_INFO);
+
+//void __declspec(naked) EnterNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+//{
+//    __asm
+//    {
+//        push ebp
+//            mov ebp, esp
+//            pushad
+//            mov edx, [ebp + 0x0C]
+//            push edx
+//            mov eax, [ebp + 0x08]
+//            push eax
+//            call EnterGlobalWithInfo;
+//        popad
+//            pop ebp
+//            ret SIZE functionIDOrClientID + SIZE eltInfo
+//    }
+//}
+
+
+extern "C" void __stdcall LeaveGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    __asm
-    {
-        push ebp
-            mov ebp, esp
-            pushad
-            mov edx, [ebp + 0x0C]
-            push edx
-            mov eax, [ebp + 0x08]
-            push eax
-            call LeaveGlobalWithInfo;
-        popad
-            pop ebp
-            ret SIZE functionIDOrClientID + SIZE eltInfo
-    }
-}
-void __stdcall TailcallGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    if (_pICorProfilerCallback != NULL)
-        _pICorProfilerCallback->Tailcall3WithInfo(functionIDOrClientID, eltInfo);
+    if (pICorProfilerCallback != NULL)
+        pICorProfilerCallback->Leave3WithInfo(functionIDOrClientID, eltInfo);
 }
 
-void __declspec(naked) TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+extern "C" void __stdcall LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+//{
+//    __asm
+//    {
+//        push ebp
+//            mov ebp, esp
+//            pushad
+//            mov edx, [ebp + 0x0C]
+//            push edx
+//            mov eax, [ebp + 0x08]
+//            push eax
+//            call LeaveGlobalWithInfo;
+//        popad
+//            pop ebp
+//            ret SIZE functionIDOrClientID + SIZE eltInfo
+//    }
+//}
+extern "C" void __stdcall TailcallGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    __asm
-    {
-        push ebp
-            mov ebp, esp
-            pushad
-            mov edx, [ebp + 0x0C]
-            push edx
-            mov eax, [ebp + 0x08]
-            push eax
-            call TailcallGlobalWithInfo;
-        popad
-            pop ebp
-            ret SIZE functionIDOrClientID + SIZE eltInfo
-    }
+    if (pICorProfilerCallback != NULL)
+        pICorProfilerCallback->Tailcall3WithInfo(functionIDOrClientID, eltInfo);
 }
+
+extern "C" void __stdcall TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+//{
+//    __asm
+//    {
+//        push ebp
+//            mov ebp, esp
+//            pushad
+//            mov edx, [ebp + 0x0C]
+//            push edx
+//            mov eax, [ebp + 0x08]
+//            push eax
+//            call TailcallGlobalWithInfo;
+//        popad
+//            pop ebp
+//            ret SIZE functionIDOrClientID + SIZE eltInfo
+//    }
+//}
 
 void CProfiler::Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
+    FunctionID functionID = functionIDOrClientID.functionID;
+
+    //COR_PRF_FRAME_INFO frameInfo;
+    //ULONG cbArgumentInfo;
+    //COR_PRF_FUNCTION_ARGUMENT_INFO argumentInfo;
+
     std::cout << "Enter" << std::endl;
+    //HRESULT hr = pICorProfilerInfo4_->GetFunctionEnter3Info(functionID, eltInfo, &frameInfo, &cbArgumentInfo, &argumentInfo);
 }
 
 void CProfiler::Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
@@ -92,6 +103,19 @@ void CProfiler::Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR
     std::cout << "Tailcall" << std::endl;
 }
 
+UINT_PTR __stdcall FunctionMapper(FunctionID functionID, void* clientData, BOOL* pbHookFunction)
+{
+    CProfiler* profiler = (CProfiler*)clientData;
+
+    profiler->MapFunction(functionID);
+
+    return functionID;
+}
+
+void CProfiler::MapFunction(FunctionID functionID)
+{
+
+}
 
 HRESULT STDMETHODCALLTYPE CProfiler::Initialize(IUnknown *pICorProfilerInfoUnk)
 {
@@ -117,10 +141,23 @@ HRESULT STDMETHODCALLTYPE CProfiler::Initialize(IUnknown *pICorProfilerInfoUnk)
         return E_FAIL;
     }
 
-    SetEventMasks();
-    pICorProfilerInfo3_->SetEnterLeaveFunctionHooks3WithInfo((FunctionEnter3WithInfo*)EnterNaked3WithInfo, (FunctionLeave3WithInfo*)LeaveNaked3WithInfo, (FunctionTailcall3WithInfo*)TailcallNaked3WithInfo);
+    result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo4, (LPVOID*)&pICorProfilerInfo4_);
+    if (FAILED(result))
+    {
+        return E_FAIL;
+    }
 
-    _pICorProfilerCallback = this;
+    SetEventMasks();
+
+    result = pICorProfilerInfo4_->SetEnterLeaveFunctionHooks3WithInfo((FunctionEnter3WithInfo*)EnterNaked3WithInfo, (FunctionLeave3WithInfo*)LeaveNaked3WithInfo, (FunctionTailcall3WithInfo*)TailcallNaked3WithInfo);
+    if (FAILED(result))
+    {
+        return E_FAIL;
+    }
+
+    result = pICorProfilerInfo4_->SetFunctionIDMapper2(FunctionMapper, (void*)this);
+
+    pICorProfilerCallback = this;
     return S_OK;
 }
 
@@ -171,7 +208,7 @@ void CProfiler::SetEventMasks()
     //COR_PRF_ALLOWABLE_AFTER_ATTACH = ((((((((COR_PRF_MONITOR_THREADS | COR_PRF_MONITOR_MODULE_LOADS) | COR_PRF_MONITOR_ASSEMBLY_LOADS) | COR_PRF_MONITOR_APPDOMAIN_LOADS) | COR_PRF_ENABLE_STACK_SNAPSHOT) | COR_PRF_MONITOR_GC) | COR_PRF_MONITOR_SUSPENDS) | COR_PRF_MONITOR_CLASS_LOADS) | COR_PRF_MONITOR_JIT_COMPILATION),
     //COR_PRF_MONITOR_IMMUTABLE = (((((((((((((((COR_PRF_MONITOR_CODE_TRANSITIONS | COR_PRF_MONITOR_REMOTING) | COR_PRF_MONITOR_REMOTING_COOKIE) | COR_PRF_MONITOR_REMOTING_ASYNC) | COR_PRF_ENABLE_REJIT) | COR_PRF_ENABLE_INPROC_DEBUGGING) | COR_PRF_ENABLE_JIT_MAPS) | COR_PRF_DISABLE_OPTIMIZATIONS) | COR_PRF_DISABLE_INLINING) | COR_PRF_ENABLE_OBJECT_ALLOCATED) | COR_PRF_ENABLE_FUNCTION_ARGS) | COR_PRF_ENABLE_FUNCTION_RETVAL) | COR_PRF_ENABLE_FRAME_INFO) | COR_PRF_USE_PROFILE_IMAGES) | COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST) | COR_PRF_DISABLE_ALL_NGEN_IMAGES)
 
-    pICorProfilerInfo3_->SetEventMask((DWORD)COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_ENABLE_FUNCTION_ARGS | COR_PRF_ENABLE_FUNCTION_RETVAL | COR_PRF_ENABLE_FRAME_INFO);
+    pICorProfilerInfo4_->SetEventMask((DWORD)COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_ENABLE_FUNCTION_ARGS | COR_PRF_ENABLE_FUNCTION_RETVAL | COR_PRF_ENABLE_FRAME_INFO);
 }
 
 // CProfiler

@@ -24,15 +24,6 @@ class ATL_NO_VTABLE CProfiler :
     public CComCoClass<CProfiler, &CLSID_Profiler>,
     public CCorProfilerCallbackImpl
 {
-private:
-    CComQIPtr<ICorProfilerInfo> pICorProfilerInfo_;
-    CComQIPtr<ICorProfilerInfo2> pICorProfilerInfo2_;
-    CComQIPtr<ICorProfilerInfo3> pICorProfilerInfo3_;
-    CComQIPtr<ICorProfilerInfo4> pICorProfilerInfo4_;
-
-    void SetEventMasks();
-
-
 public:
     CProfiler()
     {
@@ -67,7 +58,15 @@ public:
     void Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
     void Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
-public:
+    void MapFunction(FunctionID functionID);
+
+private:
+    CComQIPtr<ICorProfilerInfo> pICorProfilerInfo_;
+    CComQIPtr<ICorProfilerInfo2> pICorProfilerInfo2_;
+    CComQIPtr<ICorProfilerInfo3> pICorProfilerInfo3_;
+    CComQIPtr<ICorProfilerInfo4> pICorProfilerInfo4_;
+
+    void SetEventMasks();
 
 
 
