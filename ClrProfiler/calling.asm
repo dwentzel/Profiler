@@ -1,6 +1,3 @@
-;.686
-;.model	flat
-
 extern EnterGlobalWithInfo:PROC, LeaveGlobalWithInfo:PROC, TailcallGlobalWithInfo:PROC
 
 public EnterNaked3WithInfo, LeaveNaked3WithInfo, TailcallNaked3WithInfo
@@ -10,66 +7,62 @@ public EnterNaked3WithInfo, LeaveNaked3WithInfo, TailcallNaked3WithInfo
 .code
 
 EnterNaked3WithInfo:
-    push	rbp
-    mov		rbp, rsp
+    ;push	rbp
+    ;mov		rbp, rsp
     
-	;pushad
-	push	rdx
-	push	rax
-
-    mov		rdx, [rbp + 0Ch]
+    push	r9
+    push	r8
     push	rdx
-    mov		rax, [rbp + 08h]
-    push	rax
+    push	rcx
+	sub		rsp, 20h
     call	EnterGlobalWithInfo
 
-    ;popad
-	pop		rax
-	pop		rdx
+	add		rsp, 20h
 
-    pop		rbp
-    ret		16
+    pop		rcx
+    pop		rdx
+    pop		r8
+    pop		r9
+
+    ;pop		rbp
+    ret
 
 LeaveNaked3WithInfo:
     push	rbp
     mov		rbp, rsp
     
-	;pushad
-	push	rdx
-	push	rax
-
-    mov		rdx, [rbp + 0Ch]
+    push	r9
+    push	r8
     push	rdx
-    mov		rax, [rbp + 08h]
-    push	rax
+    push	rcx
+
     call	LeaveGlobalWithInfo
     
-	;popad
-	pop		rax
-	pop		rdx
+    pop		rcx
+    pop		rdx
+    pop		r8
+    pop		r9
 
     pop		rbp
-    ret		16
+    ret
 
 TailcallNaked3WithInfo:
     push	rbp
     mov		rbp, rsp
     
-	;pushad
-	push	rdx
-	push	rax
-
-    mov		rdx, [rbp + 0Ch]
+    push	r9
+    push	r8
     push	rdx
-    mov		rax, [rbp + 08h]
-    push	rax
+    push	rcx
+
     call	TailcallGlobalWithInfo
     
-	;popad
-	pop		rax
-	pop		rdx
+    pop		rcx
+    pop		rdx
+    pop		r8
+    pop		r9
 
     pop		rbp
-    ret		8
-	
+    ret
+    
 END

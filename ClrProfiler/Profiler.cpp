@@ -13,7 +13,7 @@ extern "C" void __stdcall EnterGlobalWithInfo(FunctionIDOrClientID functionIDOrC
         pICorProfilerCallback->Enter3WithInfo(functionIDOrClientID, eltInfo);
 }
 
-extern "C" void __stdcall EnterNaked3WithInfo(FunctionIDOrClientID, COR_PRF_ELT_INFO);
+extern "C" void EnterNaked3WithInfo(FunctionIDOrClientID, COR_PRF_ELT_INFO);
 
 //void __declspec(naked) EnterNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 //{
@@ -40,7 +40,7 @@ extern "C" void __stdcall LeaveGlobalWithInfo(FunctionIDOrClientID functionIDOrC
         pICorProfilerCallback->Leave3WithInfo(functionIDOrClientID, eltInfo);
 }
 
-extern "C" void __stdcall LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+extern "C" void LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 //{
 //    __asm
 //    {
@@ -63,7 +63,7 @@ extern "C" void __stdcall TailcallGlobalWithInfo(FunctionIDOrClientID functionID
         pICorProfilerCallback->Tailcall3WithInfo(functionIDOrClientID, eltInfo);
 }
 
-extern "C" void __stdcall TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+extern "C" void TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 //{
 //    __asm
 //    {
@@ -85,12 +85,14 @@ void CProfiler::Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PR
 {
     FunctionID functionID = functionIDOrClientID.functionID;
 
-    //COR_PRF_FRAME_INFO frameInfo;
-    //ULONG cbArgumentInfo;
+    COR_PRF_FRAME_INFO frameInfo;
+    ULONG cbArgumentInfo;
     //COR_PRF_FUNCTION_ARGUMENT_INFO argumentInfo;
+    //HRESULT hr = pICorProfilerInfo4_->GetFunctionEnter3Info(functionID, eltInfo, &frameInfo, &cbArgumentInfo, &argumentInfo);
+
 
     std::cout << "Enter" << std::endl;
-    //HRESULT hr = pICorProfilerInfo4_->GetFunctionEnter3Info(functionID, eltInfo, &frameInfo, &cbArgumentInfo, &argumentInfo);
+    
 }
 
 void CProfiler::Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
