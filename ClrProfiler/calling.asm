@@ -1,13 +1,9 @@
 ;.686
 ;.model	flat
 
-externdef EnterGlobalWithInfo:PROC
-externdef LeaveGlobalWithInfo:PROC
-externdef TailcallGlobalWithInfo:PROC
+extern EnterGlobalWithInfo:PROC, LeaveGlobalWithInfo:PROC, TailcallGlobalWithInfo:PROC
 
-public EnterNaked3WithInfo
-public LeaveNaked3WithInfo
-public TailcallNaked3WithInfo
+public EnterNaked3WithInfo, LeaveNaked3WithInfo, TailcallNaked3WithInfo
 
 .data
 
