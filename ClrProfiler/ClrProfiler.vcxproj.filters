@@ -37,6 +37,9 @@
     <ClCompile Include="CorProfilerCallbackImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MethodInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -58,6 +61,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CorProfilerCallbackImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MethodInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -86,7 +92,7 @@
     </Midl>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="calling.asm">
+    <MASM Include="calling64.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

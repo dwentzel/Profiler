@@ -3,7 +3,7 @@
 #pragma once
 #include "resource.h"       // main symbols
 
-
+#include <string>
 
 #include "ClrProfiler_i.h"
 #include "CorProfilerCallbackImpl.h"
@@ -44,6 +44,7 @@ public:
 
     HRESULT FinalConstruct()
     {
+        text = "happy...";
         return S_OK;
     }
 
@@ -58,17 +59,21 @@ public:
     void Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
     void Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
-    void MapFunction(FunctionID functionID);
+    void MapFunction(FunctionID functionID, BOOL* pbHookFunction);
 
 private:
-    CComQIPtr<ICorProfilerInfo> pICorProfilerInfo_;
-    CComQIPtr<ICorProfilerInfo2> pICorProfilerInfo2_;
-    CComQIPtr<ICorProfilerInfo3> pICorProfilerInfo3_;
-    CComQIPtr<ICorProfilerInfo4> pICorProfilerInfo4_;
+    //static const int NAME_BUFFER_SIZE;
+
+    CComPtr<ICorProfilerInfo> m_pICorProfilerInfo;
+    CComPtr<ICorProfilerInfo2> m_pICorProfilerInfo2;
+    CComPtr<ICorProfilerInfo3> m_pICorProfilerInfo3;
+    CComPtr<ICorProfilerInfo4> m_pICorProfilerInfo4;
 
     void SetEventMasks();
 
+    HRESULT GetFullMethodName(FunctionID functionID, LPWSTR wszMethodName);
 
+    std::string text;
 
 };
 

@@ -23,3 +23,5 @@
 #include <atlbase.h>
 #include <atlcom.h>
 #include <atlctl.h>
+
+#define NAME_BUFFER_SIZE 1024

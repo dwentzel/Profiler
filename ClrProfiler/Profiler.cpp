@@ -2,15 +2,20 @@
 
 #include "stdafx.h"
 #include "Profiler.h"
+#include "MethodInfo.h"
 
 #include <iostream>
 
-CProfiler* pICorProfilerCallback;
+CProfiler* g_pICorProfilerCallback;
+
+//const int CProfiler::NAME_BUFFER_SIZE = 1024;
 
 extern "C" void __stdcall EnterGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    if (pICorProfilerCallback != NULL)
-        pICorProfilerCallback->Enter3WithInfo(functionIDOrClientID, eltInfo);
+    std::cout << "Enter global functionID = " << functionIDOrClientID.clientID << " eltInfo = " << eltInfo << std::endl;
+
+    if (g_pICorProfilerCallback != NULL)
+        g_pICorProfilerCallback->Enter3WithInfo(functionIDOrClientID, eltInfo);
 }
 
 extern "C" void EnterNaked3WithInfo(FunctionIDOrClientID, COR_PRF_ELT_INFO);
@@ -36,8 +41,8 @@ extern "C" void EnterNaked3WithInfo(FunctionIDOrClientID, COR_PRF_ELT_INFO);
 
 extern "C" void __stdcall LeaveGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    if (pICorProfilerCallback != NULL)
-        pICorProfilerCallback->Leave3WithInfo(functionIDOrClientID, eltInfo);
+    if (g_pICorProfilerCallback != NULL)
+        g_pICorProfilerCallback->Leave3WithInfo(functionIDOrClientID, eltInfo);
 }
 
 extern "C" void LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
@@ -59,8 +64,8 @@ extern "C" void LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, C
 //}
 extern "C" void __stdcall TailcallGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    if (pICorProfilerCallback != NULL)
-        pICorProfilerCallback->Tailcall3WithInfo(functionIDOrClientID, eltInfo);
+    if (g_pICorProfilerCallback != NULL)
+        g_pICorProfilerCallback->Tailcall3WithInfo(functionIDOrClientID, eltInfo);
 }
 
 extern "C" void TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
@@ -85,13 +90,12 @@ void CProfiler::Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PR
 {
     FunctionID functionID = functionIDOrClientID.functionID;
 
-    COR_PRF_FRAME_INFO frameInfo;
-    ULONG cbArgumentInfo;
-    //COR_PRF_FUNCTION_ARGUMENT_INFO argumentInfo;
-    //HRESULT hr = pICorProfilerInfo4_->GetFunctionEnter3Info(functionID, eltInfo, &frameInfo, &cbArgumentInfo, &argumentInfo);
+    CMethodInfo methodInfo(functionID, m_pICorProfilerInfo4);
 
+    std::cout << "Enter functionID = " << functionID << " eltInfo = " << eltInfo << std::endl;
 
-    std::cout << "Enter" << std::endl;
+    methodInfo.GetArguments(eltInfo);
+
     
 }
 
@@ -108,58 +112,114 @@ void CProfiler::Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR
 UINT_PTR __stdcall FunctionMapper(FunctionID functionID, void* clientData, BOOL* pbHookFunction)
 {
     CProfiler* profiler = (CProfiler*)clientData;
+    profiler->MapFunction(functionID, pbHookFunction);
 
-    profiler->MapFunction(functionID);
+    //std::cout << "FunctionMapper functionID = " << functionID << std::endl;
 
     return functionID;
 }
 
-void CProfiler::MapFunction(FunctionID functionID)
+void CProfiler::MapFunction(FunctionID functionID, BOOL* pbHookFunction)
 {
+    WCHAR wszMethodName[NAME_BUFFER_SIZE];
+    GetFullMethodName(functionID, wszMethodName);
 
+    //std::cout << "CProfiler::MapFunction functionID = " << functionID << std::endl;
+    bool profileFunction = StrCmpNW(wszMethodName, L"TestApplication", 15) == 0;
+
+    if (profileFunction) {
+        wprintf(L"mapped method: %ls\n functionID = %llu\n", wszMethodName, functionID);
+    }
+
+    *pbHookFunction = profileFunction;
+    //std::cout << "Method name: " << wszMethodName << std::endl;
+
+    //if (SUCCEEDED(hr)) {
+    //    std::cout << "MapFunction, functionID: " << functionID << " succeded" << std::endl;
+    //}
+    //else {
+    //    std::cout << "MapFunction, functionID: " << functionID << " error" << std::endl;
+    //}
+
+}
+
+HRESULT CProfiler::GetFullMethodName(FunctionID functionID, LPWSTR wszMethodName)
+{
+    HRESULT hr = S_OK;
+    CComPtr<IMetaDataImport2> pMetaDataImport;
+    mdMethodDef methodToken = mdTypeDefNil;
+    mdTypeDef classToken = mdTypeDefNil;
+    WCHAR wszMethod[NAME_BUFFER_SIZE];
+    WCHAR wszClass[NAME_BUFFER_SIZE];
+    ULONG cchMethod;
+    ULONG cchClass;
+    PCCOR_SIGNATURE sigBlob = NULL;
+    ULONG sigBlobByteCount;
+
+    hr = m_pICorProfilerInfo4->GetTokenAndMetaDataFromFunction(functionID, IID_IMetaDataImport2, (LPUNKNOWN*)&pMetaDataImport, &methodToken);
+    if (SUCCEEDED(hr))
+    {
+        hr = pMetaDataImport->GetMethodProps(methodToken, &classToken, wszMethod, NAME_BUFFER_SIZE, &cchMethod, NULL, &sigBlob, &sigBlobByteCount, NULL, NULL);
+
+        if (SUCCEEDED(hr))
+        {
+            hr = pMetaDataImport->GetTypeDefProps(classToken, wszClass, NAME_BUFFER_SIZE, &cchClass, NULL, NULL);
+            if (SUCCEEDED(hr)) {
+                _snwprintf_s(wszMethodName, NAME_BUFFER_SIZE, NAME_BUFFER_SIZE, L"%s.%s", wszClass, wszMethod);
+            }
+        }
+    }
+
+    //pMetaDataImport->Release();
+    return hr;
 }
 
 HRESULT STDMETHODCALLTYPE CProfiler::Initialize(IUnknown *pICorProfilerInfoUnk)
 {
-    HRESULT result;
+    HRESULT hr;
 
     std::cout << "started profiler" << std::endl;
 
-    result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo, (LPVOID*)&pICorProfilerInfo_);
-    if (FAILED(result))
+    hr = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo, (LPVOID*)&m_pICorProfilerInfo);
+    if (FAILED(hr))
     {
         return E_FAIL;
     }
 
-    result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo2, (LPVOID*)&pICorProfilerInfo2_);
-    if (FAILED(result))
+    hr = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo2, (LPVOID*)&m_pICorProfilerInfo2);
+    if (FAILED(hr))
     {
         return E_FAIL;
     }
 
-    result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo3, (LPVOID*)&pICorProfilerInfo3_);
-    if (FAILED(result))
+    hr = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo3, (LPVOID*)&m_pICorProfilerInfo3);
+    if (FAILED(hr))
     {
         return E_FAIL;
     }
 
-    result = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo4, (LPVOID*)&pICorProfilerInfo4_);
-    if (FAILED(result))
+    hr = pICorProfilerInfoUnk->QueryInterface(IID_ICorProfilerInfo4, (LPVOID*)&m_pICorProfilerInfo4);
+    if (FAILED(hr))
     {
         return E_FAIL;
     }
 
     SetEventMasks();
 
-    result = pICorProfilerInfo4_->SetEnterLeaveFunctionHooks3WithInfo((FunctionEnter3WithInfo*)EnterNaked3WithInfo, (FunctionLeave3WithInfo*)LeaveNaked3WithInfo, (FunctionTailcall3WithInfo*)TailcallNaked3WithInfo);
-    if (FAILED(result))
+    hr = m_pICorProfilerInfo4->SetEnterLeaveFunctionHooks3WithInfo((FunctionEnter3WithInfo*)EnterNaked3WithInfo, (FunctionLeave3WithInfo*)LeaveNaked3WithInfo, (FunctionTailcall3WithInfo*)TailcallNaked3WithInfo);
+    if (FAILED(hr))
     {
         return E_FAIL;
     }
 
-    result = pICorProfilerInfo4_->SetFunctionIDMapper2(FunctionMapper, (void*)this);
+    hr = m_pICorProfilerInfo4->SetFunctionIDMapper2(FunctionMapper, (LPVOID)this);
+    if (FAILED(hr))
+    {
+        return E_FAIL;
+    }
 
-    pICorProfilerCallback = this;
+
+    g_pICorProfilerCallback = this;
     return S_OK;
 }
 
@@ -210,7 +270,7 @@ void CProfiler::SetEventMasks()
     //COR_PRF_ALLOWABLE_AFTER_ATTACH = ((((((((COR_PRF_MONITOR_THREADS | COR_PRF_MONITOR_MODULE_LOADS) | COR_PRF_MONITOR_ASSEMBLY_LOADS) | COR_PRF_MONITOR_APPDOMAIN_LOADS) | COR_PRF_ENABLE_STACK_SNAPSHOT) | COR_PRF_MONITOR_GC) | COR_PRF_MONITOR_SUSPENDS) | COR_PRF_MONITOR_CLASS_LOADS) | COR_PRF_MONITOR_JIT_COMPILATION),
     //COR_PRF_MONITOR_IMMUTABLE = (((((((((((((((COR_PRF_MONITOR_CODE_TRANSITIONS | COR_PRF_MONITOR_REMOTING) | COR_PRF_MONITOR_REMOTING_COOKIE) | COR_PRF_MONITOR_REMOTING_ASYNC) | COR_PRF_ENABLE_REJIT) | COR_PRF_ENABLE_INPROC_DEBUGGING) | COR_PRF_ENABLE_JIT_MAPS) | COR_PRF_DISABLE_OPTIMIZATIONS) | COR_PRF_DISABLE_INLINING) | COR_PRF_ENABLE_OBJECT_ALLOCATED) | COR_PRF_ENABLE_FUNCTION_ARGS) | COR_PRF_ENABLE_FUNCTION_RETVAL) | COR_PRF_ENABLE_FRAME_INFO) | COR_PRF_USE_PROFILE_IMAGES) | COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST) | COR_PRF_DISABLE_ALL_NGEN_IMAGES)
 
-    pICorProfilerInfo4_->SetEventMask((DWORD)COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_ENABLE_FUNCTION_ARGS | COR_PRF_ENABLE_FUNCTION_RETVAL | COR_PRF_ENABLE_FRAME_INFO);
+    m_pICorProfilerInfo4->SetEventMask((DWORD)COR_PRF_MONITOR_ENTERLEAVE | COR_PRF_ENABLE_FUNCTION_ARGS | COR_PRF_ENABLE_FUNCTION_RETVAL | COR_PRF_ENABLE_FRAME_INFO);
 }
 
 // CProfiler
