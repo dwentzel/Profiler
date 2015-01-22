@@ -2,6 +2,7 @@
 #include "MethodInfo.h"
 
 #include <iostream>
+#include <vector>
 
 CMethodInfo::CMethodInfo(FunctionID functionID, ATL::CComPtr<ICorProfilerInfo4> pICorProfilerInfo4)
     : m_functionID{ functionID }, m_pICorProfilerInfo4{ pICorProfilerInfo4 }
@@ -38,20 +39,42 @@ CMethodInfo::~CMethodInfo()
 
 void CMethodInfo::GetArguments(COR_PRF_ELT_INFO eltInfo)
 {
-    HCORENUM phEnum = NULL;
-    ULONG cMax{ 16 };
-    ULONG cTokens{};
-    mdParamDef rParams[16]{};
+    PCCOR_SIGNATURE pcCurrentSignature = m_pcSignature;
 
-    ULONG readBytes{ 0 };
+    bool hasThis;
+    bool explicitThis;
+    bool isVararg;
+    bool isGeneric;
+    ULONG genericArgCount;
+    ULONG argCount;
+
+    CorElementType returnType;
 
     std::cout << "  signature data: ";
 
-    while (readBytes < m_signatureByteCount) {
-        ULONG data;
-        readBytes += CorSigUncompressData(m_pcSignature + readBytes, &data);
+    std::vector<CorElementType> argumentTypes;
 
-        std::cout << std::hex << data << std::dec << " ";
+    ULONG callingConvention = CorSigUncompressCallingConv(pcCurrentSignature);
+
+    hasThis = callingConvention & 0x20;
+    isGeneric = callingConvention & 0x10;
+    isVararg = callingConvention & 0x05;
+    explicitThis = callingConvention & 0x40;
+
+    if (isGeneric) {
+        genericArgCount = CorSigUncompressData(pcCurrentSignature);
+    }
+
+    argCount = CorSigUncompressData(pcCurrentSignature);
+
+   
+    returnType = CorSigUncompressElementType(pcCurrentSignature);
+
+    for (int i = 0; i < argCount; i++) {
+        CorElementType argType = CorSigUncompressElementType(pcCurrentSignature);
+        argumentTypes.push_back(argType);
+
+        std::cout << std::hex << argType << std::dec << " ";
     }
 
     std::cout << std::endl;

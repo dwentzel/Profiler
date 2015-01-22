@@ -19,7 +19,7 @@ private:
     ATL::CComPtr<IMetaDataImport2> m_pMetaDataImport2;
 
     mdTypeDef m_classDefToken{ mdTypeDefNil };
-    mdMethodDef m_methodDefToken{ mdTypeDefNil };
+    mdMethodDef m_methodDefToken{ mdMethodDefNil };
 
     PCCOR_SIGNATURE m_pcSignature{ NULL };
     ULONG m_signatureByteCount{ 0 };
