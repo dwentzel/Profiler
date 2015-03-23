@@ -19,62 +19,65 @@ using namespace ATL;
 
 // CProfiler
 
-class ATL_NO_VTABLE CProfiler :
-    public CComObjectRootEx<CComSingleThreadModel>,
-    public CComCoClass<CProfiler, &CLSID_Profiler>,
-    public CCorProfilerCallbackImpl
-{
-public:
-    CProfiler()
+namespace ClrProfiler {
+
+    class ATL_NO_VTABLE CProfiler :
+        public CComObjectRootEx<CComSingleThreadModel>,
+        public CComCoClass<CProfiler, &CLSID_Profiler>,
+        public CCorProfilerCallbackImpl
     {
-    }
+    public:
+        CProfiler()
+        {
+        }
 
-    DECLARE_REGISTRY_RESOURCEID(IDR_PROFILER)
+        DECLARE_REGISTRY_RESOURCEID(IDR_PROFILER)
 
 
-    BEGIN_COM_MAP(CProfiler)
-        COM_INTERFACE_ENTRY(ICorProfilerCallback)
-        COM_INTERFACE_ENTRY(ICorProfilerCallback2)
-        COM_INTERFACE_ENTRY(ICorProfilerCallback3)
-        COM_INTERFACE_ENTRY(ICorProfilerCallback4)
-        COM_INTERFACE_ENTRY(ICorProfilerCallback5)
-    END_COM_MAP()
+        BEGIN_COM_MAP(CProfiler)
+            COM_INTERFACE_ENTRY(ICorProfilerCallback)
+            COM_INTERFACE_ENTRY(ICorProfilerCallback2)
+            COM_INTERFACE_ENTRY(ICorProfilerCallback3)
+            COM_INTERFACE_ENTRY(ICorProfilerCallback4)
+            COM_INTERFACE_ENTRY(ICorProfilerCallback5)
+        END_COM_MAP()
 
-    DECLARE_PROTECT_FINAL_CONSTRUCT()
+        DECLARE_PROTECT_FINAL_CONSTRUCT()
 
-    HRESULT FinalConstruct()
-    {
-        text = "happy...";
-        return S_OK;
-    }
+        HRESULT FinalConstruct()
+        {
+            text = "happy...";
+            return S_OK;
+        }
 
-    void FinalRelease()
-    {
-    }
+        void FinalRelease()
+        {
+        }
 
-    STDMETHOD(Initialize)(IUnknown *pICorProfilerInfoUnk);
-    STDMETHOD(Shutdown)(void);
+        STDMETHOD(Initialize)(IUnknown *pICorProfilerInfoUnk);
+        STDMETHOD(Shutdown)(void);
 
-    void Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-    void Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
-    void Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+        void Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+        void Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+        void Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
 
-    void MapFunction(FunctionID functionID, BOOL* pbHookFunction);
+        void MapFunction(FunctionID functionID, BOOL* pbHookFunction);
 
-private:
-    //static const int NAME_BUFFER_SIZE;
+    private:
+        //static const int NAME_BUFFER_SIZE;
 
-    CComPtr<ICorProfilerInfo> m_pICorProfilerInfo;
-    CComPtr<ICorProfilerInfo2> m_pICorProfilerInfo2;
-    CComPtr<ICorProfilerInfo3> m_pICorProfilerInfo3;
-    CComPtr<ICorProfilerInfo4> m_pICorProfilerInfo4;
+        CComPtr<ICorProfilerInfo> m_pICorProfilerInfo;
+        CComPtr<ICorProfilerInfo2> m_pICorProfilerInfo2;
+        CComPtr<ICorProfilerInfo3> m_pICorProfilerInfo3;
+        CComPtr<ICorProfilerInfo4> m_pICorProfilerInfo4;
 
-    void SetEventMasks();
+        void SetEventMasks();
 
-    HRESULT GetFullMethodName(FunctionID functionID, LPWSTR wszMethodName);
+        HRESULT GetFullMethodName(FunctionID functionID, LPWSTR wszMethodName);
 
-    std::string text;
+        std::string text;
 
-};
+    };
 
-OBJECT_ENTRY_AUTO(__uuidof(Profiler), CProfiler)
+    OBJECT_ENTRY_AUTO(__uuidof(Profiler), CProfiler)
+}

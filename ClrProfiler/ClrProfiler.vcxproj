@@ -248,6 +248,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="MethodInfo.cpp" />
+    <ClCompile Include="ParameterInfo.cpp" />
     <ClCompile Include="Profiler.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -261,6 +262,7 @@
     <ClInclude Include="CorProfilerCallbackImpl.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="MethodInfo.h" />
+    <ClInclude Include="ParameterInfo.h" />
     <ClInclude Include="Profiler.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />

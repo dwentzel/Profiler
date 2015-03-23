@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-CProfiler* g_pICorProfilerCallback;
+ClrProfiler::CProfiler* g_pICorProfilerCallback;
 
 //const int CProfiler::NAME_BUFFER_SIZE = 1024;
 
@@ -86,32 +86,31 @@ extern "C" void TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID
 //    }
 //}
 
-void CProfiler::Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void ClrProfiler::CProfiler::Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
     FunctionID functionID = functionIDOrClientID.functionID;
 
     CMethodInfo methodInfo(functionID, m_pICorProfilerInfo4);
+    methodInfo.LoadArguments(eltInfo);
 
-    std::cout << "Enter functionID = " << functionID << " eltInfo = " << eltInfo << std::endl;
-
-    methodInfo.GetArguments(eltInfo);
+    //std::cout << "Enter functionID = " << functionID << " eltInfo = " << eltInfo << std::endl;
 
     
 }
 
-void CProfiler::Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void ClrProfiler::CProfiler::Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
     std::cout << "Leave" << std::endl;
 }
 
-void CProfiler::Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+void ClrProfiler::CProfiler::Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
     std::cout << "Tailcall" << std::endl;
 }
 
 UINT_PTR __stdcall FunctionMapper(FunctionID functionID, void* clientData, BOOL* pbHookFunction)
 {
-    CProfiler* profiler = (CProfiler*)clientData;
+    ClrProfiler::CProfiler* profiler = (ClrProfiler::CProfiler*)clientData;
     profiler->MapFunction(functionID, pbHookFunction);
 
     //std::cout << "FunctionMapper functionID = " << functionID << std::endl;
@@ -119,16 +118,21 @@ UINT_PTR __stdcall FunctionMapper(FunctionID functionID, void* clientData, BOOL*
     return functionID;
 }
 
-void CProfiler::MapFunction(FunctionID functionID, BOOL* pbHookFunction)
+void ClrProfiler::CProfiler::MapFunction(FunctionID functionID, BOOL* pbHookFunction)
 {
-    WCHAR wszMethodName[NAME_BUFFER_SIZE];
-    GetFullMethodName(functionID, wszMethodName);
+    //WCHAR wszMethodName[NAME_BUFFER_SIZE];
+    //GetFullMethodName(functionID, wszMethodName);
 
     //std::cout << "CProfiler::MapFunction functionID = " << functionID << std::endl;
-    bool profileFunction = StrCmpNW(wszMethodName, L"TestApplication", 15) == 0;
+    //bool profileFunction = StrCmpNW(wszMethodName, L"TestApplication", 15) == 0;
+
+    CMethodInfo methodInfo(functionID, m_pICorProfilerInfo4);
+    methodInfo.LoadParameters();
+    bool profileFunction = methodInfo.GetClassName().compare(0, 15, L"TestApplication") == 0;
 
     if (profileFunction) {
-        wprintf(L"mapped method: %ls\n functionID = %llu\n", wszMethodName, functionID);
+        std::wcout << L"mapped method: " << methodInfo << std::endl;
+        //wprintf(L"mapped method: %ls\n functionID = %llu\n", wszMethodName, functionID);
     }
 
     *pbHookFunction = profileFunction;
@@ -143,7 +147,7 @@ void CProfiler::MapFunction(FunctionID functionID, BOOL* pbHookFunction)
 
 }
 
-HRESULT CProfiler::GetFullMethodName(FunctionID functionID, LPWSTR wszMethodName)
+HRESULT ClrProfiler::CProfiler::GetFullMethodName(FunctionID functionID, LPWSTR wszMethodName)
 {
     HRESULT hr = S_OK;
     CComPtr<IMetaDataImport2> pMetaDataImport;
@@ -174,7 +178,7 @@ HRESULT CProfiler::GetFullMethodName(FunctionID functionID, LPWSTR wszMethodName
     return hr;
 }
 
-HRESULT STDMETHODCALLTYPE CProfiler::Initialize(IUnknown *pICorProfilerInfoUnk)
+HRESULT STDMETHODCALLTYPE ClrProfiler::CProfiler::Initialize(IUnknown *pICorProfilerInfoUnk)
 {
     HRESULT hr;
 
@@ -224,12 +228,12 @@ HRESULT STDMETHODCALLTYPE CProfiler::Initialize(IUnknown *pICorProfilerInfoUnk)
 }
 
 
-HRESULT STDMETHODCALLTYPE CProfiler::Shutdown(void)
+HRESULT STDMETHODCALLTYPE ClrProfiler::CProfiler::Shutdown(void)
 {
     return S_OK;
 }
 
-void CProfiler::SetEventMasks()
+void ClrProfiler::CProfiler::SetEventMasks()
 {
     //COR_PRF_MONITOR_NONE = 0,
     //COR_PRF_MONITOR_FUNCTION_UNLOADS = 0x1,

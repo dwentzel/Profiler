@@ -1,23 +1,28 @@
 #include "stdafx.h"
 #include "MethodInfo.h"
+#include "ParameterInfo.h"
 
 #include <iostream>
 #include <vector>
 
-CMethodInfo::CMethodInfo(FunctionID functionID, ATL::CComPtr<ICorProfilerInfo4> pICorProfilerInfo4)
+ClrProfiler::CMethodInfo::CMethodInfo(FunctionID functionID, ATL::CComPtr<ICorProfilerInfo4> pICorProfilerInfo4)
     : m_functionID{ functionID }, m_pICorProfilerInfo4{ pICorProfilerInfo4 }
 {
     HRESULT hr;
+
+    WCHAR nameBuffer[NAME_BUFFER_SIZE];
+    ULONG nameBufferCharCount;
+    //WCHAR classNameBuffer[NAME_BUFFER_SIZE];
+    //ULONG methodNameCharCount;
+    //ULONG classNameCharCount;
+
+
+    hr = m_pICorProfilerInfo4->GetTokenAndMetaDataFromFunction(m_functionID, IID_IMetaDataImport2, (LPUNKNOWN*)&m_pMetaDataImport2, &m_methodDefToken);
+    hr = m_pMetaDataImport2->GetMethodProps(m_methodDefToken, &m_classDefToken, nameBuffer, NAME_BUFFER_SIZE, &nameBufferCharCount, NULL, &m_pcSignature, &m_signatureByteCount, NULL, NULL);
+    m_methodName = std::wstring(nameBuffer, nameBufferCharCount - 1);
     
-    WCHAR wszMethod[NAME_BUFFER_SIZE];
-    WCHAR wszClass[NAME_BUFFER_SIZE];
-    ULONG cchMethod;
-    ULONG cchClass;
-
-
-    hr = m_pICorProfilerInfo4->GetTokenAndMetaDataFromFunction(functionID, IID_IMetaDataImport2, (LPUNKNOWN*)&m_pMetaDataImport2, &m_methodDefToken);
-
-    hr = m_pMetaDataImport2->GetMethodProps(m_methodDefToken, &m_classDefToken, wszMethod, NAME_BUFFER_SIZE, &cchMethod, NULL, &m_pcSignature, &m_signatureByteCount, NULL, NULL);
+    hr = m_pMetaDataImport2->GetTypeDefProps(m_classDefToken, nameBuffer, NAME_BUFFER_SIZE, &nameBufferCharCount, NULL, NULL);
+    m_className = std::wstring(nameBuffer, nameBufferCharCount - 1);
 
 
     //hr = m_pMetaDataImport2->GetTypeDefProps(classToken, wszClass, NAME_BUFFER_SIZE, &cchClass, NULL, NULL);
@@ -33,61 +38,86 @@ CMethodInfo::CMethodInfo(FunctionID functionID, ATL::CComPtr<ICorProfilerInfo4> 
 
 }
 
-CMethodInfo::~CMethodInfo()
+ClrProfiler::CMethodInfo::~CMethodInfo()
 {
 }
 
-void CMethodInfo::GetArguments(COR_PRF_ELT_INFO eltInfo)
+namespace ClrProfiler{
+    std::wostream& operator<<(std::wostream& out, const ClrProfiler::CMethodInfo& methodInfo) 
+    {
+        out << methodInfo.m_className << L"." << methodInfo.m_methodName << L"(";
+        
+        bool isFirstParameter{ true };
+        for (auto parameter : methodInfo.m_parameters) {
+            if (!isFirstParameter) {
+                out << L", ";
+            }
+            else {
+                isFirstParameter = false;
+            }
+
+            out << parameter;
+        }
+        out << L")";
+        return out;
+    }
+}
+
+//void ClrProfiler::CMethodInfo::LoadMethodName(FunctionID functionID)
+//{
+//    HRESULT hr = S_OK;
+//    //ATL::CComPtr<IMetaDataImport2> pMetaDataImport;
+//    //mdMethodDef methodToken = mdTypeDefNil;
+//    mdTypeDef classToken = mdTypeDefNil;
+//    WCHAR methodName[NAME_BUFFER_SIZE];
+//    WCHAR className[NAME_BUFFER_SIZE];
+//    ULONG cchMethod;
+//    ULONG cchClass;
+//    PCCOR_SIGNATURE sigBlob = NULL;
+//    ULONG sigBlobByteCount;
+//
+//    //hr = m_pICorProfilerInfo4->GetTokenAndMetaDataFromFunction(functionID, IID_IMetaDataImport2, (LPUNKNOWN*)&pMetaDataImport, &methodToken);
+//    //if (SUCCEEDED(hr))
+//    //{
+//        hr = pMetaDataImport->GetMethodProps(methodToken, &classToken, methodName, NAME_BUFFER_SIZE, &cchMethod, NULL, &sigBlob, &sigBlobByteCount, NULL, NULL);
+//
+//        if (SUCCEEDED(hr))
+//        {
+//            hr = pMetaDataImport->GetTypeDefProps(classToken, className, NAME_BUFFER_SIZE, &cchClass, NULL, NULL);
+//            if (SUCCEEDED(hr)) {
+//                _snwprintf_s(wszMethodName, NAME_BUFFER_SIZE, NAME_BUFFER_SIZE, L"%s.%s", className, methodName);
+//            }
+//        }
+//    //}
+//
+//}
+
+void ClrProfiler::CMethodInfo::LoadParameters() 
 {
     PCCOR_SIGNATURE pcCurrentSignature = m_pcSignature;
 
-    bool hasThis;
-    bool explicitThis;
-    bool isVararg;
-    bool isGeneric;
     ULONG genericArgCount;
     ULONG argCount;
 
-    CorElementType returnType;
+    m_callingConvention = CorSigUncompressCallingConv(pcCurrentSignature);
 
-    std::cout << "  signature data: ";
-
-    std::vector<CorElementType> argumentTypes;
-
-    ULONG callingConvention = CorSigUncompressCallingConv(pcCurrentSignature);
-
-    hasThis = callingConvention & 0x20;
-    isGeneric = callingConvention & 0x10;
-    isVararg = callingConvention & 0x05;
-    explicitThis = callingConvention & 0x40;
-
-    if (isGeneric) {
+    if (IsGeneric()) {
         genericArgCount = CorSigUncompressData(pcCurrentSignature);
     }
 
     argCount = CorSigUncompressData(pcCurrentSignature);
+    m_returnType = CorSigUncompressElementType(pcCurrentSignature);
 
-   
-    returnType = CorSigUncompressElementType(pcCurrentSignature);
 
+    // this is wrong: byref is a token but not an arg, and should not count agains argCount
     for (int i = 0; i < argCount; i++) {
-        CorElementType argType = CorSigUncompressElementType(pcCurrentSignature);
-        argumentTypes.push_back(argType);
-
-        std::cout << std::hex << argType << std::dec << " ";
+        auto parameterInfo = CParameterInfo::ParseFromSignature(pcCurrentSignature, m_pMetaDataImport2);
+        m_parameters.push_back(parameterInfo);
     }
+}
 
-    std::cout << std::endl;
-
-
-
-    //hr = m_pMetaDataImport2->EnumParams(&phEnum, m_methodDefToken, rParams, cMax, &cTokens);
-    //if (SUCCEEDED(hr)) {
-    //    std::cout << "  parameter count = " << cTokens << std::endl;
-    //}
-
-
-
+void ClrProfiler::CMethodInfo::LoadArguments(COR_PRF_ELT_INFO eltInfo)
+{
     COR_PRF_FRAME_INFO frameInfo;
     ULONG cbArgumentInfo = 0;
     COR_PRF_FUNCTION_ARGUMENT_INFO* pArgumentInfo = NULL;
