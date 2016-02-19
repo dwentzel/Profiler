@@ -6,7 +6,7 @@ public EnterNaked3WithInfo, LeaveNaked3WithInfo, TailcallNaked3WithInfo
 
 .code
 
-	align	16
+    align	16
 
 EnterNaked3WithInfo proc frame
     push	rax
@@ -17,17 +17,17 @@ EnterNaked3WithInfo proc frame
 ;	push	r9
     push	r10
     push	r11
-	.allocstack 32
+    .allocstack 32
 
-	sub		rsp, 20h
-	.allocstack	32
-	
+    sub		rsp, 20h
+    .allocstack	32
+    
 
-	.endprolog
+    .endprolog
 
     call	EnterGlobalWithInfo
 
-	add		rsp, 20h
+    add		rsp, 20h
 
     pop		r11
     pop		r10
@@ -41,39 +41,39 @@ EnterNaked3WithInfo proc frame
     ret
 EnterNaked3WithInfo endp
 
-	;align	16
+    ;align	16
 
 LeaveNaked3WithInfo proc frame    
     push	rax
-	.allocstack	8
+    .allocstack	8
 
-	sub		rsp, 20h
-	.allocstack	20h
+    sub		rsp, 20h
+    .allocstack	20h
 
-	.endprolog
+    .endprolog
 
     call	LeaveGlobalWithInfo
     
-	add		rsp, 20h
+    add		rsp, 20h
     pop		rax
     ret
 LeaveNaked3WithInfo endp
 
-	;align	16
+    ;align	16
 
 TailcallNaked3WithInfo proc frame
     push	rax
-	.allocstack	8
+    .allocstack	8
 
-	sub		rsp, 20h
-	.allocstack	20h
+    sub		rsp, 20h
+    .allocstack	20h
 
-	.endprolog
+    .endprolog
 
     call	TailcallGlobalWithInfo
 
-	add		rsp, 20h    
-	pop		rax
+    add		rsp, 20h    
+    pop		rax
 
     ret
 TailcallNaked3WithInfo endp
