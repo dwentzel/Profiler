@@ -13,17 +13,18 @@ ClrProfiler::CParameterInfo::CParameterInfo()
 
 ClrProfiler::CParameterInfo::~CParameterInfo()
 {
+	delete m_className;
 }
 
-ClrProfiler::CParameterInfo ClrProfiler::CParameterInfo::ParseFromSignature(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2)
+std::unique_ptr<ClrProfiler::CParameterInfo> ClrProfiler::CParameterInfo::ParseFromSignature(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2)
 {
-    CParameterInfo parameterInfo;
+	CParameterInfo* parameterInfo = new CParameterInfo();
     bool done = false;
     while (!done) {
-        done = ParseSignatureElement(parameterInfo, pcSignature, pMetaDataImport2);
+        done = ParseSignatureElement(*parameterInfo, pcSignature, pMetaDataImport2);
     }
 
-    return parameterInfo;
+    return std::unique_ptr<CParameterInfo>(parameterInfo);
 }
 
 bool ClrProfiler::CParameterInfo::ParseSignatureElement(CParameterInfo& parameterInfo, PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2)
@@ -31,9 +32,10 @@ bool ClrProfiler::CParameterInfo::ParseSignatureElement(CParameterInfo& paramete
     CorElementType elementType = CorSigUncompressElementType(pcSignature);
 
     if (elementType == ELEMENT_TYPE_VALUETYPE || elementType == ELEMENT_TYPE_CLASS) {
-        auto className = GetTypeName(pcSignature, pMetaDataImport2);
+		parameterInfo.m_className = GetTypeName(pcSignature, pMetaDataImport2);
         parameterInfo.m_elementType = elementType;
         parameterInfo.m_isClass = true;
+		
 
         //wprintf(L"%x (%s) ", elementType, className);
     }
@@ -54,7 +56,7 @@ bool ClrProfiler::CParameterInfo::ParseSignatureElement(CParameterInfo& paramete
     return true;
 }
 
-std::unique_ptr<WCHAR[]> ClrProfiler::CParameterInfo::GetTypeName(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2)
+LPWSTR ClrProfiler::CParameterInfo::GetTypeName(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2)
 {
     HRESULT hr;
     ULONG cchName;
@@ -72,7 +74,7 @@ std::unique_ptr<WCHAR[]> ClrProfiler::CParameterInfo::GetTypeName(PCCOR_SIGNATUR
 
     StringCchCopy(cn, cchName, className);
 
-    return std::unique_ptr<WCHAR[]>(cn);
+    return cn;
 }
 
 LPWSTR ClrProfiler::CParameterInfo::ElementTypeToString(CorElementType elementType)
@@ -116,48 +118,69 @@ LPWSTR ClrProfiler::CParameterInfo::ElementTypeToString(CorElementType elementTy
 
         // every type above PTR will be simple type
     case ELEMENT_TYPE_PTR:     // PTR <type>
+		return L"ELEMENT_TYPE_PTR";
     case ELEMENT_TYPE_BYREF:     // BYREF <type>
+		return L"ELEMENT_TYPE_BYREF";
 
         // Please use ELEMENT_TYPE_VALUETYPE. ELEMENT_TYPE_VALUECLASS is deprecated.
     case ELEMENT_TYPE_VALUETYPE:     // VALUETYPE <class Token>
+		return L"ELEMENT_TYPE_VALUETYPE";
     case ELEMENT_TYPE_CLASS:     // CLASS <class Token>
+		return L"ELEMENT_TYPE_CLASS";
     case ELEMENT_TYPE_VAR:     // a class type variable VAR <number>
+		return L"ELEMENT_TYPE_VAR";
     case ELEMENT_TYPE_ARRAY:     // MDARRAY <type> <rank> <bcount> <bound1> ... <lbcount> <lb1> ...
+		return L"ELEMENT_TYPE_ARRAY";
     case ELEMENT_TYPE_GENERICINST:     // GENERICINST <generic type> <argCnt> <arg1> ... <argn>
+		return L"ELEMENT_TYPE_GENERICINST";
     case ELEMENT_TYPE_TYPEDBYREF:     // TYPEDREF  (it takes no args) a typed referece to some other type
-
+		return L"ELEMENT_TYPE_TYPEDBYREF";
 
     case ELEMENT_TYPE_FNPTR:     // FNPTR <complete sig for the function including calling convention>
+		return L"ELEMENT_TYPE_FNPTR";
     case ELEMENT_TYPE_OBJECT:     // Shortcut for System.Object
+		return L"ELEMENT_TYPE_OBJECT";
     case ELEMENT_TYPE_SZARRAY:     // Shortcut for single dimension zero lower bound array
+		return L"ELEMENT_TYPE_SZARRAY";
         // SZARRAY <type>
     case ELEMENT_TYPE_MVAR:     // a method type variable MVAR <number>
+		return L"ELEMENT_TYPE_MVAR";
 
         // This is only for binding
     case ELEMENT_TYPE_CMOD_REQD:     // required C modifier : E_T_CMOD_REQD <mdTypeRef/mdTypeDef>
+		return L"ELEMENT_TYPE_CMOD_REQD";
     case ELEMENT_TYPE_CMOD_OPT:     // optional C modifier : E_T_CMOD_OPT <mdTypeRef/mdTypeDef>
-
+		return L"ELEMENT_TYPE_CMOD_OPT";
         // This is for signatures generated internally (which will not be persisted in any way).
     case ELEMENT_TYPE_INTERNAL:     // INTERNAL <typehandle>
+		return L"ELEMENT_TYPE_INTERNAL";
 
         // Note that this is the max of base type excluding modifiers
     case ELEMENT_TYPE_MAX:     // first invalid element type
-
+		return L"ELEMENT_TYPE_MAX";
+	default:
         return L"";
     }
 }
 
 namespace ClrProfiler {
-    std::wostream& operator<<(std::wostream& out, const CParameterInfo& parameterInfo)
+    std::wostream& operator<<(std::wostream& out, CParameterInfo const& parameterInfo)
     {
         if (parameterInfo.m_isByref) {
             out << L"byref ";
         }
-        if (parameterInfo.m_isPtr) {
+
+		if (parameterInfo.m_isPtr) {
             out << L"ptr ";
         }
 
-        out << CParameterInfo::ElementTypeToString(parameterInfo.m_elementType);
+		if (parameterInfo.m_isClass) {
+			out << parameterInfo.m_className;
+		}
+		else {
+			out << CParameterInfo::ElementTypeToString(parameterInfo.m_elementType);
+		}
+
         return out;
     }
 }

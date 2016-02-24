@@ -4,9 +4,12 @@
 #include "resource.h"       // main symbols
 
 #include <string>
+#include <unordered_map>
+#include <memory>
 
 #include "ClrProfiler_i.h"
 #include "CorProfilerCallbackImpl.h"
+#include "MethodInfo.h"
 
 
 
@@ -76,6 +79,8 @@ namespace ClrProfiler {
         HRESULT GetFullMethodName(FunctionID functionID, LPWSTR wszMethodName);
 
         std::string text;
+
+		std::unordered_map<FunctionID, std::shared_ptr<CMethodInfo>> m_methods;
 
     };
 

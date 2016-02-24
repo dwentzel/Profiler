@@ -30,8 +30,8 @@ namespace ClrProfiler {
         bool IsVararg() const;
         bool HasExplicitThis() const;
 
-        std::vector<CParameterInfo>::const_iterator begin() const;
-        std::vector<CParameterInfo>::const_iterator end() const;
+		std::vector<std::unique_ptr<CParameterInfo>>::const_iterator begin() const;
+		std::vector<std::unique_ptr<CParameterInfo>>::const_iterator end() const;
 
     private:
         FunctionID m_functionID;
@@ -49,7 +49,7 @@ namespace ClrProfiler {
         std::wstring m_methodName;
         std::wstring m_className;
 
-        std::vector<CParameterInfo> m_parameters;
+        std::vector<std::unique_ptr<CParameterInfo>> m_parameters;
 
         friend std::wostream& operator<<(std::wostream& out, const CMethodInfo& methodInfo);
     };
@@ -64,12 +64,12 @@ namespace ClrProfiler {
         return m_methodName;
     }
 
-    inline std::vector<CParameterInfo>::const_iterator CMethodInfo::begin() const
+    inline std::vector<std::unique_ptr<CParameterInfo>>::const_iterator CMethodInfo::begin() const
     {
         return m_parameters.begin();
     }
 
-    inline std::vector<CParameterInfo>::const_iterator CMethodInfo::end() const
+    inline std::vector<std::unique_ptr<CParameterInfo>>::const_iterator CMethodInfo::end() const
     {
         return m_parameters.end();
     }

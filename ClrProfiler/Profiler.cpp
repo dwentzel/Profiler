@@ -10,16 +10,6 @@ ClrProfiler::CProfiler* g_pICorProfilerCallback;
 
 //const int CProfiler::NAME_BUFFER_SIZE = 1024;
 
-extern "C" void __stdcall EnterGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    std::cout << "Enter global functionID = " << functionIDOrClientID.clientID << " eltInfo = " << eltInfo << std::endl;
-
-    if (g_pICorProfilerCallback != NULL)
-        g_pICorProfilerCallback->Enter3WithInfo(functionIDOrClientID, eltInfo);
-}
-
-extern "C" void EnterNaked3WithInfo(FunctionIDOrClientID, COR_PRF_ELT_INFO);
-
 //void __declspec(naked) EnterNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 //{
 //    __asm
@@ -38,14 +28,29 @@ extern "C" void EnterNaked3WithInfo(FunctionIDOrClientID, COR_PRF_ELT_INFO);
 //    }
 //}
 
+extern "C" void EnterNaked3WithInfo(FunctionIDOrClientID, COR_PRF_ELT_INFO);
 
-extern "C" void __stdcall LeaveGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+extern "C" void __stdcall EnterGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
+    std::cout << "Enter global functionID = " << functionIDOrClientID.clientID << " eltInfo = " << eltInfo << std::endl;
+
     if (g_pICorProfilerCallback != NULL)
-        g_pICorProfilerCallback->Leave3WithInfo(functionIDOrClientID, eltInfo);
+        g_pICorProfilerCallback->Enter3WithInfo(functionIDOrClientID, eltInfo);
 }
 
-extern "C" void LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void ClrProfiler::CProfiler::Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+{
+	FunctionID functionID = functionIDOrClientID.functionID;
+
+	auto methodInfo = m_methods[functionID];
+	methodInfo->LoadArguments(eltInfo);
+
+	//std::cout << "Enter functionID = " << functionID << " eltInfo = " << eltInfo << std::endl;
+
+
+}
+
+//void __declspec(naked) LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 //{
 //    __asm
 //    {
@@ -62,13 +67,21 @@ extern "C" void LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, C
 //            ret SIZE functionIDOrClientID + SIZE eltInfo
 //    }
 //}
-extern "C" void __stdcall TailcallGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+
+extern "C" void LeaveNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+
+extern "C" void __stdcall LeaveGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
     if (g_pICorProfilerCallback != NULL)
-        g_pICorProfilerCallback->Tailcall3WithInfo(functionIDOrClientID, eltInfo);
+        g_pICorProfilerCallback->Leave3WithInfo(functionIDOrClientID, eltInfo);
 }
 
-extern "C" void TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+void ClrProfiler::CProfiler::Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+{
+	std::cout << "Leave" << std::endl;
+}
+
+//void __declspec(naked) TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 //{
 //    __asm
 //    {
@@ -86,22 +99,15 @@ extern "C" void TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID
 //    }
 //}
 
-void ClrProfiler::CProfiler::Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
+extern "C" void TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo);
+
+extern "C" void __stdcall TailcallGlobalWithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-    FunctionID functionID = functionIDOrClientID.functionID;
-
-    CMethodInfo methodInfo(functionID, m_pICorProfilerInfo4);
-    methodInfo.LoadArguments(eltInfo);
-
-    //std::cout << "Enter functionID = " << functionID << " eltInfo = " << eltInfo << std::endl;
-
-    
+    if (g_pICorProfilerCallback != NULL)
+        g_pICorProfilerCallback->Tailcall3WithInfo(functionIDOrClientID, eltInfo);
 }
 
-void ClrProfiler::CProfiler::Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
-{
-    std::cout << "Leave" << std::endl;
-}
+
 
 void ClrProfiler::CProfiler::Tailcall3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
@@ -126,11 +132,14 @@ void ClrProfiler::CProfiler::MapFunction(FunctionID functionID, BOOL* pbHookFunc
     //std::cout << "CProfiler::MapFunction functionID = " << functionID << std::endl;
     //bool profileFunction = StrCmpNW(wszMethodName, L"TestApplication", 15) == 0;
 
-    CMethodInfo methodInfo(functionID, m_pICorProfilerInfo4);
-    methodInfo.LoadParameters();
-    bool profileFunction = methodInfo.GetClassName().compare(0, 15, L"TestApplication") == 0;
+    auto methodInfo = std::shared_ptr<CMethodInfo>(new CMethodInfo(functionID, m_pICorProfilerInfo4));
+    bool profileFunction = methodInfo->GetClassName().compare(0, 15, L"TestApplication") == 0;
 
     if (profileFunction) {
+		methodInfo->LoadParameters();
+
+		m_methods.insert(std::pair<FunctionID, std::shared_ptr<CMethodInfo>>(functionID, methodInfo));
+
         std::wcout << L"mapped method: " << methodInfo << std::endl;
         //wprintf(L"mapped method: %ls\n functionID = %llu\n", wszMethodName, functionID);
     }

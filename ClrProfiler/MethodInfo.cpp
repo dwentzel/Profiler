@@ -16,7 +16,6 @@ ClrProfiler::CMethodInfo::CMethodInfo(FunctionID functionID, ATL::CComPtr<ICorPr
     //ULONG methodNameCharCount;
     //ULONG classNameCharCount;
 
-
     hr = m_pICorProfilerInfo4->GetTokenAndMetaDataFromFunction(m_functionID, IID_IMetaDataImport2, (LPUNKNOWN*)&m_pMetaDataImport2, &m_methodDefToken);
     hr = m_pMetaDataImport2->GetMethodProps(m_methodDefToken, &m_classDefToken, nameBuffer, NAME_BUFFER_SIZE, &nameBufferCharCount, NULL, &m_pcSignature, &m_signatureByteCount, NULL, NULL);
     m_methodName = std::wstring(nameBuffer, nameBufferCharCount - 1);
@@ -34,8 +33,6 @@ ClrProfiler::CMethodInfo::CMethodInfo(FunctionID functionID, ATL::CComPtr<ICorPr
     //if (!profileFunction) {
     //    return hr;
     //}
-
-
 }
 
 ClrProfiler::CMethodInfo::~CMethodInfo()
@@ -48,7 +45,7 @@ namespace ClrProfiler{
         out << methodInfo.m_className << L"." << methodInfo.m_methodName << L"(";
         
         bool isFirstParameter{ true };
-        for (auto parameter : methodInfo.m_parameters) {
+        for (auto const& parameter : methodInfo.m_parameters) {
             if (!isFirstParameter) {
                 out << L", ";
             }
@@ -56,7 +53,7 @@ namespace ClrProfiler{
                 isFirstParameter = false;
             }
 
-            out << parameter;
+            out << *parameter;
         }
         out << L")";
         return out;
@@ -109,10 +106,9 @@ void ClrProfiler::CMethodInfo::LoadParameters()
     m_returnType = CorSigUncompressElementType(pcCurrentSignature);
 
 
-    // this is wrong: byref is a token but not an arg, and should not count agains argCount
+    // this is wrong: byref is a token but not an arg, and should not count against argCount
     for (int i = 0; i < argCount; i++) {
-        auto parameterInfo = CParameterInfo::ParseFromSignature(pcCurrentSignature, m_pMetaDataImport2);
-        m_parameters.push_back(parameterInfo);
+		m_parameters.push_back(std::move(CParameterInfo::ParseFromSignature(pcCurrentSignature, m_pMetaDataImport2)));
     }
 }
 
@@ -121,6 +117,13 @@ void ClrProfiler::CMethodInfo::LoadArguments(COR_PRF_ELT_INFO eltInfo)
     COR_PRF_FRAME_INFO frameInfo;
     ULONG cbArgumentInfo = 0;
     COR_PRF_FUNCTION_ARGUMENT_INFO* pArgumentInfo = NULL;
+
+	std::wcout << "Number of parameters: " << m_parameters.size() << std::endl;
+
+	for (auto const& p : m_parameters) {
+		std::wcout << *p << ", ";
+	}
+	std::wcout << std::endl;
 
     HRESULT hr = m_pICorProfilerInfo4->GetFunctionEnter3Info(m_functionID, eltInfo, &frameInfo, &cbArgumentInfo, pArgumentInfo);
     if (hr == HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))
@@ -143,6 +146,7 @@ void ClrProfiler::CMethodInfo::LoadArguments(COR_PRF_ELT_INFO eltInfo)
             {
                 continue;
             }
+
             ObjectID* id = reinterpret_cast<ObjectID*>(argumentRange.startAddress);
 
             printf(" id = %x\n", id);

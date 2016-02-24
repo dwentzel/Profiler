@@ -13,10 +13,15 @@ namespace ClrProfiler {
     class CParameterInfo
     {
     public:
-        static CParameterInfo ParseFromSignature(PCCOR_SIGNATURE& signature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2);
+        static std::unique_ptr<ClrProfiler::CParameterInfo> ParseFromSignature(PCCOR_SIGNATURE& signature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2);
 
-        CParameterInfo();
         ~CParameterInfo();
+
+	private:
+		CParameterInfo();
+
+		CParameterInfo(CParameterInfo const&) = delete;
+		CParameterInfo& operator=(CParameterInfo const&) = delete;
 
     private:
         CorElementType m_elementType;
@@ -24,13 +29,15 @@ namespace ClrProfiler {
         bool m_isByref{ false };
         bool m_isClass{ false };
 
+		LPWSTR m_className;
+
         static bool ParseSignatureElement(CParameterInfo& parameterInfo, PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetadataImport2);
-        static std::unique_ptr<WCHAR[]> GetTypeName(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2);
+        static LPWSTR GetTypeName(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2);
 
         static LPWSTR ElementTypeToString(CorElementType elementType);
 
-        friend std::wostream& operator<<(std::wostream& out, const CParameterInfo& parameterInfo);
+        friend std::wostream& operator<<(std::wostream& out, CParameterInfo const& parameterInfo);
     };
 
-    std::wostream& operator<<(std::wostream& out, const CParameterInfo& parameterInfo);
+    std::wostream& operator<<(std::wostream& out, CParameterInfo const& parameterInfo);
 }

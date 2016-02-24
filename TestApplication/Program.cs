@@ -11,8 +11,19 @@ namespace TestApplication
     {
         static void Main(string[] args)
         {
-            Program program = new Program();
-            program.Run();
+            try
+            {
+                Program program = new Program();
+                program.Run();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
+
+            Console.WriteLine("TestApplication stopped");
+            Console.ReadKey();
         }
 
         private void Run()
@@ -37,8 +48,6 @@ namespace TestApplication
                     isRunning = false;
                 }
             }
-
-            Console.ReadKey();
         }
 
         private void Method8Args(int p1, int p2, string p3, double p6, decimal p7, string p8, TestClass t, IntPtr ptr, out string p9)
