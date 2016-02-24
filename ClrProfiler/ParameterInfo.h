@@ -2,7 +2,6 @@
 
 #include "stdafx.h"
 
-#include <memory>
 #include <string>
 
 #include <cor.h>
@@ -28,10 +27,11 @@ namespace ClrProfiler {
         bool m_isPtr{ false };
         bool m_isByref{ false };
         bool m_isClass{ false };
+		bool m_isArray{ false };
 
 		LPWSTR m_className;
 
-        static bool ParseSignatureElement(CParameterInfo& parameterInfo, PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetadataImport2);
+        void ParseSignatureElement(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetadataImport2);
         static LPWSTR GetTypeName(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2);
 
         static LPWSTR ElementTypeToString(CorElementType elementType);

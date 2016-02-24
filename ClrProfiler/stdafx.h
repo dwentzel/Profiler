@@ -24,4 +24,9 @@
 #include <atlcom.h>
 #include <atlctl.h>
 
+#include <strsafe.h>
+
+#include <iostream>
+#include <memory>
+
 #define NAME_BUFFER_SIZE 1024

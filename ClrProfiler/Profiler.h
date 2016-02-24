@@ -5,7 +5,6 @@
 
 #include <string>
 #include <unordered_map>
-#include <memory>
 
 #include "ClrProfiler_i.h"
 #include "CorProfilerCallbackImpl.h"

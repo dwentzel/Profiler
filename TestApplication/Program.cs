@@ -32,7 +32,9 @@ namespace TestApplication
 
             Console.WriteLine("Running, press any key to quit...");
 
-            IntPtr ptr = IntPtr.Zero;
+            var string1 = "TESTSTRING FOR IntPtr";
+
+            IntPtr ptr = System.Runtime.InteropServices.Marshal.StringToHGlobalAnsi(string1);
 
             while (isRunning)
             {
@@ -40,7 +42,13 @@ namespace TestApplication
 
                 TestClass t = new TestClass();
 
-                Method8Args(1, 2, "testing", 2.0, 50m, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx", t, ptr, out str);
+                var obj = new object();
+
+                var array = new int[10];
+
+                var testClassArray = new TestClass[10];
+
+                MethodWithArgs(1, 2, "testing", 2.0, 50m, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx", t, ptr, out str, obj, array, testClassArray);
 
                 if (Console.KeyAvailable)
                 {
@@ -50,7 +58,19 @@ namespace TestApplication
             }
         }
 
-        private void Method8Args(int p1, int p2, string p3, double p6, decimal p7, string p8, TestClass t, IntPtr ptr, out string p9)
+        private void MethodWithArgs(
+            int p1,
+            int p2,
+            string p3,
+            double p6,
+            decimal p7,
+            string p8,
+            TestClass testClass,
+            IntPtr ptr,
+            out string p9,
+            object obj,
+            int[] arr,
+            TestClass[] testClassArray)
         {
             p9 = null;
         }

@@ -107,7 +107,7 @@ void ClrProfiler::CMethodInfo::LoadParameters()
 
 
     // this is wrong: byref is a token but not an arg, and should not count against argCount
-    for (int i = 0; i < argCount; i++) {
+    for (ULONG i = 0; i < argCount; i++) {
 		m_parameters.push_back(std::move(CParameterInfo::ParseFromSignature(pcCurrentSignature, m_pMetaDataImport2)));
     }
 }
@@ -149,7 +149,7 @@ void ClrProfiler::CMethodInfo::LoadArguments(COR_PRF_ELT_INFO eltInfo)
 
             ObjectID* id = reinterpret_cast<ObjectID*>(argumentRange.startAddress);
 
-            printf(" id = %x\n", id);
+            printf(" id = %p\n", id);
             ULONG size = 0;
 
             std::cout << " argumentRange.length == " << argumentRange.length << std::endl;

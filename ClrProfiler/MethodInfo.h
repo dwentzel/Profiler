@@ -76,22 +76,22 @@ namespace ClrProfiler {
 
     inline bool CMethodInfo::HasThis() const
     {
-        return m_callingConvention & 0x20;
+        return (m_callingConvention & 0x20) == 0x20;
     }
 
     inline bool CMethodInfo::IsGeneric() const
     {
-        return m_callingConvention & 0x10;
+        return (m_callingConvention & 0x10) == 0x10;
     }
 
     inline bool CMethodInfo::IsVararg() const
     {
-        return m_callingConvention & 0x05;
+        return (m_callingConvention & 0x05) == 0x05;
     }
 
     inline bool CMethodInfo::HasExplicitThis() const
     {
-        return m_callingConvention & 0x40;
+        return (m_callingConvention & 0x40) == 0x40;
     }
 
 
