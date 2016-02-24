@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClrProfiler", "ClrProfiler\ClrProfiler.vcxproj", "{23FA06AF-BC54-44FE-89DB-7BF042285B7F}"
 EndProject
@@ -15,6 +15,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleLauncher", "ConsoleLauncher\ConsoleLauncher.csproj", "{6DDDA7F5-59FD-4A72-B309-90185C8EF262}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClrProfilerTest", "ClrProfilerTest\ClrProfilerTest.vcxproj", "{66C8DA8F-0A2C-4B2C-84AC-7DDEFF82C95B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F38D131B-0C54-4CAA-9215-52C0B7372BD4}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
