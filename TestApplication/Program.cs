@@ -48,6 +48,8 @@ namespace TestApplication
                 Console.WriteLine(ex.StackTrace);
             }
 
+            TestApplicationIL.TestClass1 x;
+
             Console.WriteLine("TestApplication stopped");
             Console.ReadKey();
         }
