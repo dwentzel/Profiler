@@ -48,7 +48,7 @@ namespace TestApplication
                 Console.WriteLine(ex.StackTrace);
             }
 
-            TestApplicationIL.TestClass1 x;
+            
 
             Console.WriteLine("TestApplication stopped");
             Console.ReadKey();
@@ -56,6 +56,11 @@ namespace TestApplication
 
         private void Run()
         {
+            var x = new TestApplicationIL.TestClass1();
+            x.PrintTest();
+
+            Console.ReadKey();
+
             bool isRunning = true;
 
             Console.WriteLine("Running, press CTRL-C to quit...");
