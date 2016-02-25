@@ -10,19 +10,30 @@ ClrProfiler::CMethodInfo::CMethodInfo(FunctionID functionID, ATL::CComPtr<ICorPr
 {
     HRESULT hr;
 
-    WCHAR nameBuffer[NAME_BUFFER_SIZE];
-    ULONG nameBufferCharCount;
+    WCHAR* nameBuffer = new WCHAR[NAME_BUFFER_SIZE];
+    ULONG cchName;
     //WCHAR classNameBuffer[NAME_BUFFER_SIZE];
     //ULONG methodNameCharCount;
     //ULONG classNameCharCount;
 
     hr = m_pICorProfilerInfo4->GetTokenAndMetaDataFromFunction(m_functionID, IID_IMetaDataImport2, (LPUNKNOWN*)&m_pMetaDataImport2, &m_methodDefToken);
-    hr = m_pMetaDataImport2->GetMethodProps(m_methodDefToken, &m_classDefToken, nameBuffer, NAME_BUFFER_SIZE, &nameBufferCharCount, NULL, &m_pcSignature, &m_signatureByteCount, NULL, NULL);
-    m_methodName = std::wstring(nameBuffer, nameBufferCharCount - 1);
+    hr = m_pMetaDataImport2->GetMethodProps(m_methodDefToken, &m_classDefToken, nameBuffer, NAME_BUFFER_SIZE, &cchName, NULL, &m_pcSignature, &m_signatureByteCount, NULL, NULL);
+    m_methodName = new WCHAR[cchName];
 
-    hr = m_pMetaDataImport2->GetTypeDefProps(m_classDefToken, nameBuffer, NAME_BUFFER_SIZE, &nameBufferCharCount, NULL, NULL);
-    m_className = std::wstring(nameBuffer, nameBufferCharCount - 1);
+    std::wcout << "methodName cchName: " << cchName << std::endl;
 
+    m_cchMethodName = cchName;
+    StringCchCopyW(m_methodName, cchName, nameBuffer);
+        
+
+    hr = m_pMetaDataImport2->GetTypeDefProps(m_classDefToken, nameBuffer, NAME_BUFFER_SIZE, &cchName, NULL, NULL);
+    m_className = new WCHAR[cchName];
+
+    std::wcout << "className cchName: " << cchName << std::endl;
+
+    m_cchClassName = cchName;
+    StringCchCopyW(m_className, cchName, nameBuffer);
+    delete nameBuffer;
 
     //hr = m_pMetaDataImport2->GetTypeDefProps(classToken, wszClass, NAME_BUFFER_SIZE, &cchClass, NULL, NULL);
     //if (SUCCEEDED(hr)) {
@@ -37,6 +48,8 @@ ClrProfiler::CMethodInfo::CMethodInfo(FunctionID functionID, ATL::CComPtr<ICorPr
 
 ClrProfiler::CMethodInfo::~CMethodInfo()
 {
+    delete[] m_methodName;
+    delete[] m_className;
 }
 
 namespace ClrProfiler {

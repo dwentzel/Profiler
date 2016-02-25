@@ -21,8 +21,10 @@ namespace ClrProfiler {
         void LoadParameters();
         void LoadArguments(COR_PRF_ELT_INFO eltInfo);
 
-        const std::wstring& GetClassName() const;
-        const std::wstring& GetMethodName() const;
+        ULONG GetCchClassName() const;
+
+        LPWSTR const GetClassName() const;
+        LPWSTR const GetMethodName() const;
 
     private:
         bool HasThis() const;
@@ -46,20 +48,28 @@ namespace ClrProfiler {
         ULONG m_callingConvention{ 0 };
         CorElementType m_returnType;
 
-        std::wstring m_methodName;
-        std::wstring m_className;
+        ULONG m_cchMethodName;
+        ULONG m_cchClassName;
+
+        LPWSTR m_methodName;
+        LPWSTR m_className;
 
         std::vector<std::unique_ptr<CParameterInfo>> m_parameters;
 
         friend std::wostream& operator<<(std::wostream& out, const CMethodInfo& methodInfo);
     };
 
-    inline const std::wstring& CMethodInfo::GetClassName() const
+    inline ULONG CMethodInfo::GetCchClassName() const
+    {
+        return m_cchClassName;
+    }
+
+    inline LPWSTR const CMethodInfo::GetClassName() const
     {
         return m_className;
     }
 
-    inline const std::wstring& CMethodInfo::GetMethodName() const
+    inline LPWSTR const CMethodInfo::GetMethodName() const
     {
         return m_methodName;
     }

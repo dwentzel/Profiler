@@ -133,18 +133,34 @@ void ClrProfiler::CProfiler::MapFunction(FunctionID functionID, BOOL* pbHookFunc
     //bool profileFunction = StrCmpNW(wszMethodName, L"TestApplication", 15) == 0;
 
     auto methodInfo = std::shared_ptr<CMethodInfo>(new CMethodInfo(functionID, m_pICorProfilerInfo4));
-    bool profileFunction = methodInfo->GetClassName().compare(0, 15, L"TestApplication") == 0;
 
-    if (profileFunction) {
+    auto cchClassName = methodInfo->GetCchClassName();
+
+    auto cchValidNamespace = 15;
+
+    if (cchClassName > cchValidNamespace) {
+        cchClassName = cchValidNamespace;
+    }
+
+    auto className = methodInfo->GetClassName();
+    auto cmp = CompareStringOrdinal(className, cchClassName, L"TestApplication", cchValidNamespace, false);
+
+    std::wcout << "Class name: " << className << ", cmp == " << cmp << std::endl;
+
+    if (cmp == CSTR_EQUAL) {
         methodInfo->LoadParameters();
 
         m_methods.insert(std::pair<FunctionID, std::shared_ptr<CMethodInfo>>(functionID, methodInfo));
 
         std::wcout << L"mapped method: " << methodInfo << std::endl;
         //wprintf(L"mapped method: %ls\n functionID = %llu\n", wszMethodName, functionID);
+
+        *pbHookFunction = 1;
+    }
+    else {
+        *pbHookFunction = 0;
     }
 
-    *pbHookFunction = profileFunction;
     //std::cout << "Method name: " << wszMethodName << std::endl;
 
     //if (SUCCEEDED(hr)) {

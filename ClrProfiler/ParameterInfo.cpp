@@ -82,22 +82,22 @@ void ClrProfiler::CParameterInfo::ParseSignatureElement(PCCOR_SIGNATURE& pcSigna
 LPWSTR ClrProfiler::CParameterInfo::GetTypeName(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2)
 {
     HRESULT hr;
-    ULONG cchName;
+    ULONG cchClassName;
     mdToken token = CorSigUncompressToken(pcSignature);
 
-    WCHAR className[NAME_BUFFER_SIZE];
+    WCHAR classNameBuffer[NAME_BUFFER_SIZE];
     if (TypeFromToken(token) == mdtTypeRef) {
-        hr = pMetaDataImport2->GetTypeRefProps(token, NULL, className, NAME_BUFFER_SIZE, &cchName);
+        hr = pMetaDataImport2->GetTypeRefProps(token, NULL, classNameBuffer, NAME_BUFFER_SIZE, &cchClassName);
     }
     else {
-        hr = pMetaDataImport2->GetTypeDefProps(token, className, NAME_BUFFER_SIZE, &cchName, NULL, NULL);
+        hr = pMetaDataImport2->GetTypeDefProps(token, classNameBuffer, NAME_BUFFER_SIZE, &cchClassName, NULL, NULL);
     }
 
-    WCHAR *cn = new WCHAR[cchName];
+    WCHAR *className = new WCHAR[cchClassName];
 
-    StringCchCopy(cn, cchName, className);
+    StringCchCopyW(className, cchClassName, classNameBuffer);
 
-    return cn;
+    return className;
 }
 
 LPWSTR ClrProfiler::CParameterInfo::ElementTypeToString(CorElementType elementType)
