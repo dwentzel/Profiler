@@ -31,6 +31,7 @@ namespace ClrProfiler {
 
 		LPWSTR m_className;
 
+		void ParseElementType(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetadataImport2);
         void ParseSignatureElement(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetadataImport2);
         static LPWSTR GetTypeName(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2);
 

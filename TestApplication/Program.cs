@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace TestApplication
 {
@@ -9,6 +10,31 @@ namespace TestApplication
 
     class Program
     {
+        ////#region Trap application termination
+        ////[DllImport("Kernel32")]
+        ////private static extern bool SetConsoleCtrlHandler(EventHandler handler, bool add);
+
+        ////private delegate bool EventHandler(CtrlType sig);
+        ////static EventHandler _handler;
+
+        ////enum CtrlType
+        ////{
+        ////    CTRL_C_EVENT = 0,
+        ////    CTRL_BREAK_EVENT = 1,
+        ////    CTRL_CLOSE_EVENT = 2,
+        ////    CTRL_LOGOFF_EVENT = 5,
+        ////    CTRL_SHUTDOWN_EVENT = 6
+        ////}
+
+        ////private static bool Handler(CtrlType sig)
+        ////{
+        ////    Console.WriteLine("Exiting system due to external CTRL-C, or process kill, or shutdown");
+        ////    Environment.Exit(-1);
+
+        ////    return true;
+        ////}
+        ////#endregion
+
         static void Main(string[] args)
         {
             try
@@ -30,31 +56,40 @@ namespace TestApplication
         {
             bool isRunning = true;
 
-            Console.WriteLine("Running, press any key to quit...");
+            Console.WriteLine("Running, press CTRL-C to quit...");
 
             var string1 = "TESTSTRING FOR IntPtr";
 
-            IntPtr ptr = System.Runtime.InteropServices.Marshal.StringToHGlobalAnsi(string1);
+            IntPtr intPtrToString = Marshal.StringToHGlobalAnsi(string1);
 
             while (isRunning)
             {
-                string str = null;
+                string outString = null;
 
-                TestClass t = new TestClass();
+                TestClass testClass = new TestClass();
 
                 var obj = new object();
 
-                var array = new int[10];
+                var intArray = new int[10];
 
                 var testClassArray = new TestClass[10];
 
-                MethodWithArgs(1, 2, "testing", 2.0, 50m, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx", t, ptr, out str, obj, array, testClassArray);
+                var twoDimensionalStringArray = new string[10][];
 
-                if (Console.KeyAvailable)
-                {
-                    Console.ReadKey();
-                    isRunning = false;
-                }
+                MethodWithArgs(
+                    1, 
+                    2, 
+                    "testing",
+                    2.0,
+                    50m,
+                    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                    testClass,
+                    intPtrToString,
+                    out outString,
+                    obj,
+                    intArray,
+                    testClassArray,
+                    twoDimensionalStringArray);
             }
         }
 
@@ -70,7 +105,8 @@ namespace TestApplication
             out string p9,
             object obj,
             int[] arr,
-            TestClass[] testClassArray)
+            TestClass[] testClassArray,
+            string[][] twoDimensionalStringArray)
         {
             p9 = null;
         }
