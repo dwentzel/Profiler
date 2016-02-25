@@ -14,7 +14,7 @@ import "ocidl.idl";
     nonextensible,
     pointer_default(unique)
 ]
-interface IProfiler : IUnknown{
+interface IProfiler : IUnknown {
 };
 [
     uuid(0EFC4259-BECC-4CB6-81C3-8233DFA2A7CB),

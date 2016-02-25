@@ -29,4 +29,12 @@
 #include <iostream>
 #include <memory>
 
+#pragma warning(push)
+#pragma warning(disable:4091)
+
+#include <cor.h>
+#include <corprof.h>
+
+#pragma warning(pop)
+
 #define NAME_BUFFER_SIZE 1024

@@ -79,7 +79,7 @@ namespace ClrProfiler {
 
         std::string text;
 
-		std::unordered_map<FunctionID, std::shared_ptr<CMethodInfo>> m_methods;
+        std::unordered_map<FunctionID, std::shared_ptr<CMethodInfo>> m_methods;
 
     };
 

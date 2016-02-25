@@ -40,12 +40,12 @@ extern "C" void __stdcall EnterGlobalWithInfo(FunctionIDOrClientID functionIDOrC
 
 void ClrProfiler::CProfiler::Enter3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-	FunctionID functionID = functionIDOrClientID.functionID;
+    FunctionID functionID = functionIDOrClientID.functionID;
 
-	auto methodInfo = m_methods[functionID];
-	methodInfo->LoadArguments(eltInfo);
+    auto methodInfo = m_methods[functionID];
+    methodInfo->LoadArguments(eltInfo);
 
-	//std::cout << "Enter functionID = " << functionID << " eltInfo = " << eltInfo << std::endl;
+    //std::cout << "Enter functionID = " << functionID << " eltInfo = " << eltInfo << std::endl;
 
 
 }
@@ -78,7 +78,7 @@ extern "C" void __stdcall LeaveGlobalWithInfo(FunctionIDOrClientID functionIDOrC
 
 void ClrProfiler::CProfiler::Leave3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
 {
-	std::cout << "Leave" << std::endl;
+    std::cout << "Leave" << std::endl;
 }
 
 //void __declspec(naked) TailcallNaked3WithInfo(FunctionIDOrClientID functionIDOrClientID, COR_PRF_ELT_INFO eltInfo)
@@ -136,9 +136,9 @@ void ClrProfiler::CProfiler::MapFunction(FunctionID functionID, BOOL* pbHookFunc
     bool profileFunction = methodInfo->GetClassName().compare(0, 15, L"TestApplication") == 0;
 
     if (profileFunction) {
-		methodInfo->LoadParameters();
+        methodInfo->LoadParameters();
 
-		m_methods.insert(std::pair<FunctionID, std::shared_ptr<CMethodInfo>>(functionID, methodInfo));
+        m_methods.insert(std::pair<FunctionID, std::shared_ptr<CMethodInfo>>(functionID, methodInfo));
 
         std::wcout << L"mapped method: " << methodInfo << std::endl;
         //wprintf(L"mapped method: %ls\n functionID = %llu\n", wszMethodName, functionID);

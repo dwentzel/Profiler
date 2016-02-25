@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cor.h>
-#include <corprof.h>
+
 
 class CCorProfilerCallbackImpl : public ICorProfilerCallback5
 {

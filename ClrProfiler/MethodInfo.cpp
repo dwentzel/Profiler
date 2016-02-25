@@ -19,7 +19,7 @@ ClrProfiler::CMethodInfo::CMethodInfo(FunctionID functionID, ATL::CComPtr<ICorPr
     hr = m_pICorProfilerInfo4->GetTokenAndMetaDataFromFunction(m_functionID, IID_IMetaDataImport2, (LPUNKNOWN*)&m_pMetaDataImport2, &m_methodDefToken);
     hr = m_pMetaDataImport2->GetMethodProps(m_methodDefToken, &m_classDefToken, nameBuffer, NAME_BUFFER_SIZE, &nameBufferCharCount, NULL, &m_pcSignature, &m_signatureByteCount, NULL, NULL);
     m_methodName = std::wstring(nameBuffer, nameBufferCharCount - 1);
-    
+
     hr = m_pMetaDataImport2->GetTypeDefProps(m_classDefToken, nameBuffer, NAME_BUFFER_SIZE, &nameBufferCharCount, NULL, NULL);
     m_className = std::wstring(nameBuffer, nameBufferCharCount - 1);
 
@@ -39,11 +39,11 @@ ClrProfiler::CMethodInfo::~CMethodInfo()
 {
 }
 
-namespace ClrProfiler{
-    std::wostream& operator<<(std::wostream& out, const ClrProfiler::CMethodInfo& methodInfo) 
+namespace ClrProfiler {
+    std::wostream& operator<<(std::wostream& out, const ClrProfiler::CMethodInfo& methodInfo)
     {
         out << methodInfo.m_className << L"." << methodInfo.m_methodName << L"(";
-        
+
         bool isFirstParameter{ true };
         for (auto const& parameter : methodInfo.m_parameters) {
             if (!isFirstParameter) {
@@ -89,7 +89,7 @@ namespace ClrProfiler{
 //
 //}
 
-void ClrProfiler::CMethodInfo::LoadParameters() 
+void ClrProfiler::CMethodInfo::LoadParameters()
 {
     PCCOR_SIGNATURE pcCurrentSignature = m_pcSignature;
 
@@ -108,7 +108,7 @@ void ClrProfiler::CMethodInfo::LoadParameters()
 
     // this is wrong: byref is a token but not an arg, and should not count against argCount
     for (ULONG i = 0; i < argCount; i++) {
-		m_parameters.push_back(std::move(CParameterInfo::ParseFromSignature(pcCurrentSignature, m_pMetaDataImport2)));
+        m_parameters.push_back(std::move(CParameterInfo::ParseFromSignature(pcCurrentSignature, m_pMetaDataImport2)));
     }
 }
 
@@ -118,12 +118,12 @@ void ClrProfiler::CMethodInfo::LoadArguments(COR_PRF_ELT_INFO eltInfo)
     ULONG cbArgumentInfo = 0;
     COR_PRF_FUNCTION_ARGUMENT_INFO* pArgumentInfo = NULL;
 
-	std::wcout << "Number of parameters: " << m_parameters.size() << std::endl;
+    std::wcout << "Number of parameters: " << m_parameters.size() << std::endl;
 
-	for (auto const& p : m_parameters) {
-		std::wcout << *p << ", ";
-	}
-	std::wcout << std::endl;
+    for (auto const& p : m_parameters) {
+        std::wcout << *p << ", ";
+    }
+    std::wcout << std::endl;
 
     HRESULT hr = m_pICorProfilerInfo4->GetFunctionEnter3Info(m_functionID, eltInfo, &frameInfo, &cbArgumentInfo, pArgumentInfo);
     if (hr == HRESULT_FROM_WIN32(ERROR_INSUFFICIENT_BUFFER))

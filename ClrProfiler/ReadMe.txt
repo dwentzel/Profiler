@@ -65,10 +65,10 @@ Proxy/stub DLL project and module definition file:
 
 ClrProfilerps.vcxproj
     This file is the project file for building a proxy/stub DLL if necessary.
-	The IDL file in the main project must contain at least one interface and you must
-	first compile the IDL file before building the proxy/stub DLL.	This process generates
-	dlldata.c, ClrProfiler_i.c and ClrProfiler_p.c which are required
-	to build the proxy/stub DLL.
+    The IDL file in the main project must contain at least one interface and you must
+    first compile the IDL file before building the proxy/stub DLL.	This process generates
+    dlldata.c, ClrProfiler_i.c and ClrProfiler_p.c which are required
+    to build the proxy/stub DLL.
 
 ClrProfilerps.vcxproj.filters
     This is the filters file for the proxy/stub project. It contains information about the 

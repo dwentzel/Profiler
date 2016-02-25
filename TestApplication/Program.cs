@@ -77,8 +77,8 @@ namespace TestApplication
                 var twoDimensionalStringArray = new string[10][];
 
                 MethodWithArgs(
-                    1, 
-                    2, 
+                    1,
+                    2,
                     "testing",
                     2.0,
                     50m,

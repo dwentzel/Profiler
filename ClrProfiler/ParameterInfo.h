@@ -16,22 +16,22 @@ namespace ClrProfiler {
 
         ~CParameterInfo();
 
-	private:
-		CParameterInfo();
+    private:
+        CParameterInfo();
 
-		CParameterInfo(CParameterInfo const&) = delete;
-		CParameterInfo& operator=(CParameterInfo const&) = delete;
+        CParameterInfo(CParameterInfo const&) = delete;
+        CParameterInfo& operator=(CParameterInfo const&) = delete;
 
     private:
         CorElementType m_elementType;
         bool m_isPtr{ false };
         bool m_isByref{ false };
         bool m_isClass{ false };
-		bool m_isArray{ false };
+        bool m_isArray{ false };
 
-		LPWSTR m_className;
+        LPWSTR m_className;
 
-		void ParseElementType(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetadataImport2);
+        void ParseElementType(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetadataImport2);
         void ParseSignatureElement(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetadataImport2);
         static LPWSTR GetTypeName(PCCOR_SIGNATURE& pcSignature, ATL::CComPtr<IMetaDataImport2> pMetaDataImport2);
 
