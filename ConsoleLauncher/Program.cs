@@ -15,7 +15,11 @@ namespace ConsoleLauncher
             //startInfo.EnvironmentVariables.Add("COR_PROFILER", "DotNetProfiler");
 
             var currentDirectory = Directory.GetCurrentDirectory();
-            var profilerPath = Path.Combine("..", "..", "..", "x64", "Debug", "DotNetProfiler.dll");
+
+            var profilerPath = IntPtr.Size == 4 ?
+                Path.Combine("..", "..", "..", "..", "Debug", "DotNetProfiler.dll"):
+                Path.Combine("..", "..", "..", "..", "x64", "Debug", "DotNetProfiler.dll");
+
             var fileInfo = new FileInfo(profilerPath);
 
             Console.WriteLine("Profiler path: {0}", fileInfo.FullName);
@@ -30,6 +34,10 @@ namespace ConsoleLauncher
 
             Console.WriteLine("Launching process");
             var process = Process.Start(startInfo);
+
+            process.WaitForExit();
+            Console.WriteLine("\n\n\nProgram execution finished. Press any key to exit Launcher");
+            Console.ReadKey();
         }
     }
 }

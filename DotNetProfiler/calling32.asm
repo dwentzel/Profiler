@@ -24,7 +24,7 @@ EnterNaked3WithInfo proc
         call EnterGlobalWithInfo
         popad
         pop ebp
-        ret 20 ;20h?
+        ret 8
 EnterNaked3WithInfo endp
 
 LeaveNaked3WithInfo proc
@@ -38,7 +38,7 @@ LeaveNaked3WithInfo proc
         call LeaveGlobalWithInfo;
         popad
         pop ebp
-        ret 20;
+        ret 8
 LeaveNaked3WithInfo endp
 
 TailcallNaked3WithInfo proc
@@ -52,7 +52,7 @@ TailcallNaked3WithInfo proc
         call TailcallGlobalWithInfo;
         popad
         pop ebp
-        ret 20
+        ret 8
 TailcallNaked3WithInfo endp
 
 		end
