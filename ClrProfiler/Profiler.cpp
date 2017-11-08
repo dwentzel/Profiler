@@ -232,6 +232,8 @@ HRESULT STDMETHODCALLTYPE ClrProfiler::CProfiler::Initialize(IUnknown *pICorProf
     }
 
 
+	
+
     g_pICorProfilerCallback = this;
     return S_OK;
 }

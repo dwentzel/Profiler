@@ -11,10 +11,11 @@ namespace ConsoleLauncher
             var startInfo = new ProcessStartInfo("TestApplication.exe");
 
             startInfo.EnvironmentVariables.Add("COR_ENABLE_PROFILING", "1");
-            startInfo.EnvironmentVariables.Add("COR_PROFILER", "{43D6CE07-2262-485D-BEF3-33C0F9340C6A}");
+            startInfo.EnvironmentVariables.Add("COR_PROFILER", "{710abc47-aa19-407f-84fb-48c12f6307ed}");
+            //startInfo.EnvironmentVariables.Add("COR_PROFILER", "DotNetProfiler");
 
             var currentDirectory = Directory.GetCurrentDirectory();
-            var profilerPath = Path.Combine("..", "..", "..", "x64", "Debug", "ClrProfiler.dll");
+            var profilerPath = Path.Combine("..", "..", "..", "x64", "Debug", "DotNetProfiler.dll");
             var fileInfo = new FileInfo(profilerPath);
 
             Console.WriteLine("Profiler path: {0}", fileInfo.FullName);
