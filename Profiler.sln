@@ -28,6 +28,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DotNetProfilerPS", "DotNetP
 		{936446E6-17DE-492D-9046-25B1B321E91D} = {936446E6-17DE-492D-9046-25B1B321E91D}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestApplications", "TestApplications", "{E982B97A-E759-455B-8BEA-17BBAE6567FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskRunner", "TaskRunner\TaskRunner.csproj", "{AE65ABDE-F412-460B-94EC-A678C7F730E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,9 +127,29 @@ Global
 		{1B046185-1983-49BC-87EB-D025A77D6CDE}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{1B046185-1983-49BC-87EB-D025A77D6CDE}.Release|Win32.ActiveCfg = Release|Win32
 		{1B046185-1983-49BC-87EB-D025A77D6CDE}.Release|x64.ActiveCfg = Release|x64
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Debug|Win32.Build.0 = Debug|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Debug|x64.ActiveCfg = Debug|x64
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Debug|x64.Build.0 = Debug|x64
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Release|Win32.ActiveCfg = Release|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Release|Win32.Build.0 = Release|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Release|x64.ActiveCfg = Release|Any CPU
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{738766C1-E62B-46D7-AFF9-05B186737CB6} = {E982B97A-E759-455B-8BEA-17BBAE6567FD}
+		{AE65ABDE-F412-460B-94EC-A678C7F730E3} = {E982B97A-E759-455B-8BEA-17BBAE6567FD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E33AD280-2A89-4E7A-BCFF-97695502CDE2}

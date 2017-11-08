@@ -8,7 +8,7 @@ namespace ConsoleLauncher
     {
         static void Main(string[] args)
         {
-            var startInfo = new ProcessStartInfo("TestApplication.exe");
+            var startInfo = new ProcessStartInfo("TaskRunner.exe");
 
             startInfo.EnvironmentVariables.Add("COR_ENABLE_PROFILING", "1");
             startInfo.EnvironmentVariables.Add("COR_PROFILER", "{710abc47-aa19-407f-84fb-48c12f6307ed}");
